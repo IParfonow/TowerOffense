@@ -16,7 +16,7 @@ ATurretPawn::ATurretPawn()
 
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Base Mesh"));
 	BaseMesh->SetupAttachment(RootComponent);
-
+	
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret Mesh"));
 	TurretMesh->SetupAttachment(RootComponent);
 
@@ -32,11 +32,39 @@ void ATurretPawn::BeginPlay()
 	
 }
 
+
+TArray<FString> ATurretPawn::GetBaseMeshMaterialSlots() const
+{
+	return TArray<FString> { TEXT("_Base_Material"), TEXT("Team_Material"), TEXT("Track_Material") }; 
+}
+
 // Called every frame
 void ATurretPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ATurretPawn::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	
+	if(BaseMesh && !MaterialParameterName.IsNone())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Material slot name: %s"), *MaterialSlotName.ToString());
+		
+		const int32 MaterialIndex = BaseMesh->GetMaterialIndex(MaterialSlotName);
+		UE_LOG(LogTemp, Warning, TEXT("Material index: %d"), MaterialIndex);
+
+		if(MaterialIndex != INDEX_NONE)
+		{
+			if(UMaterialInstanceDynamic* HullColor = UMaterialInstanceDynamic::Create(BaseMesh->GetMaterial(MaterialIndex), this))
+			{
+				HullColor->SetVectorParameterValue(FName("TeamColor"), SlotColor);
+				BaseMesh->SetMaterial(MaterialIndex, HullColor);
+			}
+		}
+	}
 }
 
 // Called to bind functionality to input

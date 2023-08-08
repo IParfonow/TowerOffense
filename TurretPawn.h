@@ -25,6 +25,15 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
 	UStaticMeshComponent* BaseMesh = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower", meta=(GetOptions = "GetBaseMeshMaterialSlots"))
+	FName MaterialSlotName;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	FName MaterialParameterName;
+	
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	FLinearColor SlotColor = FLinearColor::White;
 	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
 	UStaticMeshComponent* TurretMesh = nullptr;
@@ -32,9 +41,14 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
 	USceneComponent* ProjectileSpawnPoint = nullptr;
 	
-public:	
+	UFUNCTION()
+	TArray<FString> GetBaseMeshMaterialSlots() const;
+public:
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void PostInitializeComponents() override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

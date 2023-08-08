@@ -49,19 +49,23 @@ void ATurretPawn::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	
-	if(BaseMesh && !MaterialParameterName.IsNone())
+	if(BaseMesh && TurretMesh &&!MaterialParameterName.IsNone())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Material slot name: %s"), *MaterialSlotName.ToString());
 		
-		const int32 MaterialIndex = BaseMesh->GetMaterialIndex(MaterialSlotName);
-		UE_LOG(LogTemp, Warning, TEXT("Material index: %d"), MaterialIndex);
+		const int32 BaseMaterialIndex = BaseMesh->GetMaterialIndex(MaterialSlotName);
+		const int32 TurretMaterialIndex = TurretMesh->GetMaterialIndex(MaterialSlotName);
 
-		if(MaterialIndex != INDEX_NONE)
+		if(BaseMaterialIndex != INDEX_NONE && TurretMaterialIndex != INDEX_NONE)
 		{
-			if(UMaterialInstanceDynamic* HullColor = UMaterialInstanceDynamic::Create(BaseMesh->GetMaterial(MaterialIndex), this))
+			if(UMaterialInstanceDynamic* TurretColorMaterial = BaseMesh->CreateDynamicMaterialInstance(TurretMaterialIndex))
 			{
-				HullColor->SetVectorParameterValue(FName("TeamColor"), SlotColor);
-				BaseMesh->SetMaterial(MaterialIndex, HullColor);
+				TurretColorMaterial->SetVectorParameterValue(TeamColorParamName, TeamColor);
+				TurretMesh->SetMaterial(BaseMaterialIndex, TurretColorMaterial);
+			}
+			if(UMaterialInstanceDynamic* HullColor = BaseMesh->CreateDynamicMaterialInstance(BaseMaterialIndex))
+			{
+				HullColor->SetVectorParameterValue(TeamColorParamName, TeamColor);
+				BaseMesh->SetMaterial(BaseMaterialIndex, HullColor);
 			}
 		}
 	}

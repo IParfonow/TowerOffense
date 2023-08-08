@@ -33,13 +33,16 @@ protected:
 	FName MaterialParameterName;
 	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
-	FLinearColor SlotColor = FLinearColor::White;
+	FLinearColor TeamColor = FLinearColor::White;
 	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
 	UStaticMeshComponent* TurretMesh = nullptr;
 	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
 	USceneComponent* ProjectileSpawnPoint = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	FName TeamColorParamName = NAME_None;
 	
 	UFUNCTION()
 	TArray<FString> GetBaseMeshMaterialSlots() const;

@@ -3,51 +3,60 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TurretPawn.h"
-#include "Camera/CameraComponent.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "InputMappingContext.h"
-#include "TankPawn.generated.h"
+#include "GameFramework/NavMovementComponent.h"
+#include "GameFramework/Pawn.h"
 
-/**
- * 
- */
+#include "TurretPawn.generated.h"
+
 UCLASS()
-class TOWEROFFENSE_API ATankPawn : public ATurretPawn
+class TOWEROFFENSE_API ATurretPawn : public APawn
 {
 	GENERATED_BODY()
+
 public:
-	ATankPawn();
-	
+	// Sets default values for this pawn's properties
+	ATurretPawn();
+
 protected:
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UCapsuleComponent* CapsuleComponent = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UStaticMeshComponent* BaseMesh = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower", meta=(GetOptions = "GetBaseMeshMaterialSlots"))
+	FName MaterialSlotName;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	FName MaterialParameterName;
+	
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	FLinearColor TeamColor = FLinearColor::Black;
+	
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UStaticMeshComponent* TurretMesh = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	USceneComponent* ProjectileSpawnPoint = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	FName TeamColorParamName = NAME_None;
+	
+	
+	UFUNCTION()
+	TArray<FString> GetBaseMeshMaterialSlots() const;
+
+	UFUNCTION()
+	void RotateTurretTowards(const FHitResult& MouseCursor);
 public:
-	virtual void Tick(float DeltaSeconds) override;
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-protected:
-	void MoveForward(const FInputActionValue& Value);
-	void MoveRight(const FInputActionValue& Value);
+	virtual void Tick(float DeltaTime) override;
 
-	void TriggerFire();
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	USpringArmComponent* SpringArmComponent = nullptr;
+	virtual void PostInitializeComponents() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Tank")
-	UCameraComponent* CameraComponent = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Enhanced Input")
-	UInputMappingContext* InputMapping = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Enhanced Input")
-	UInputAction* InputToFire = nullptr;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Enhanced Input")
-	UInputAction* InputToMoveForward = nullptr;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Enhanced Input")
-	UInputAction* InputToMoveRight = nullptr;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 };

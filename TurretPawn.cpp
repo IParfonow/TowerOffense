@@ -3,12 +3,14 @@
 
 #include "TurretPawn.h"
 
+
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ATurretPawn::ATurretPawn()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Component"));
@@ -25,11 +27,9 @@ ATurretPawn::ATurretPawn()
 	
 }
 
-// Called when the game starts or when spawned
 void ATurretPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 
@@ -38,17 +38,37 @@ TArray<FString> ATurretPawn::GetBaseMeshMaterialSlots() const
 	return TArray<FString> { TEXT("_Base_Material"), TEXT("Team_Material"), TEXT("Track_Material") }; 
 }
 
-// Called every frame
+void ATurretPawn::RotateTurretTowards(const FHitResult& MouseCursor)
+{
+	if (TurretMesh)
+	{
+		const APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		if(PlayerController)
+		{
+			const FVector TurretLocation = TurretMesh->GetComponentLocation();
+			const FVector MouseHitLocation = MouseCursor.ImpactPoint;
+
+			FVector DirectionToCursor = MouseHitLocation - TurretLocation;
+			DirectionToCursor.Z = 0.0f;
+			
+			const FRotator CurrentRotation = TurretMesh->GetComponentRotation();
+			const FRotator TargetRotation = DirectionToCursor.Rotation();
+			
+			const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation , GetWorld()->GetDeltaSeconds(), 10.0f);
+		
+			TurretMesh->SetWorldRotation(NewRotation);
+		}
+	}
+}
+
 void ATurretPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ATurretPawn::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	
 	if(BaseMesh && TurretMesh &&!MaterialParameterName.IsNone())
 	{
 		

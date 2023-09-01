@@ -30,10 +30,10 @@ public:
 protected:
 
 	void MoveForward(const FInputActionValue& Value);
-	void MoveRight(const FInputActionValue& Value);
+	void TurnRight(const FInputActionValue& Value);
 	void TriggerFire();
 
-	
+	void AddMappingContextToInput() const;	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	USpringArmComponent* SpringArmComponent = nullptr;
@@ -53,12 +53,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Enhanced Input")
 	UInputAction* InputToMoveRight = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Tank Characteristics")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
 	float TankBaseSpeed = 3.0f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Tank Characteristics")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
 	float TankBaseTurnSpeed = 20.0f;
-
-private:
-	FHitResult HitResult;
 };

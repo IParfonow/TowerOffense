@@ -31,7 +31,7 @@ protected:
 	FName MaterialSlotName;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
-	FName MaterialParameterName;
+	FName MaterialParameterName = NAME_None;
 	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
 	FLinearColor TeamColor = FLinearColor::Black;
@@ -44,13 +44,16 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
 	FName TeamColorParamName = NAME_None;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	float TurretRotatingInterpSpeed = 10.f;
 	
 	
 	UFUNCTION()
 	TArray<FString> GetBaseMeshMaterialSlots() const;
 
 	UFUNCTION()
-	void RotateTurretTowards(const FHitResult& MouseCursor);
+	void RotateTurretTowards(const FVector& MouseCursor);
 public:
 
 	virtual void Tick(float DeltaTime) override;

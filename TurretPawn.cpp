@@ -38,26 +38,21 @@ TArray<FString> ATurretPawn::GetBaseMeshMaterialSlots() const
 	return TArray<FString> { TEXT("_Base_Material"), TEXT("Team_Material"), TEXT("Track_Material") }; 
 }
 
-void ATurretPawn::RotateTurretTowards(const FHitResult& MouseCursor)
+void ATurretPawn::RotateTurretTowards(const FVector& MouseCursor)
 {
-	if (TurretMesh)
+	check(TurretMesh)
 	{
-		const APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-		if(PlayerController)
-		{
-			const FVector TurretLocation = TurretMesh->GetComponentLocation();
-			const FVector MouseHitLocation = MouseCursor.ImpactPoint;
+		const FVector TurretLocation = TurretMesh->GetComponentLocation();;
 
-			FVector DirectionToCursor = MouseHitLocation - TurretLocation;
-			DirectionToCursor.Z = 0.0f;
+		FVector DirectionToCursor = MouseCursor - TurretLocation;
+		DirectionToCursor.Z = 0.0f;
 			
-			const FRotator CurrentRotation = TurretMesh->GetComponentRotation();
-			const FRotator TargetRotation = DirectionToCursor.Rotation();
+		const FRotator CurrentRotation = TurretMesh->GetComponentRotation();
+		const FRotator TargetRotation = DirectionToCursor.Rotation();
 			
-			const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation , GetWorld()->GetDeltaSeconds(), 10.0f);
+		const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation , GetWorld()->GetDeltaSeconds(), TurretRotatingInterpSpeed);
 		
-			TurretMesh->SetWorldRotation(NewRotation);
-		}
+		TurretMesh->SetWorldRotation(NewRotation);
 	}
 }
 

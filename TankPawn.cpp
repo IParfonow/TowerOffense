@@ -29,34 +29,20 @@ ATankPawn::ATankPawn()
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	const APlayerController* PlayerController = Cast<APlayerController>(this->GetController());
-	const ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PlayerController->GetLocalPlayer());
-	
-	if (PlayerController)
-    {
-		if(LocalPlayer)
-		{
-			if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
-			{
-				if (InputMapping)
-				{
-					InputSystem->AddMappingContext(InputMapping, 0);
-				}
-			}
-		}
-    }
+	AddMappingContextToInput();
 }
 	
 void ATankPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	const APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if(PlayerController)
 	{
+		FHitResult HitResult;		
 		const bool bHit = PlayerController->GetHitResultUnderCursor(ECC_Visibility, false , HitResult);
 		if(bHit)
 		{
-			RotateTurretTowards(HitResult);	
+			RotateTurretTowards(HitResult.Location);	
 			DrawDebugSphere(GetWorld(), HitResult.Location, 20.0f, 12, FColor::Red, false, -1, 0, 1);
 		}
 	}
@@ -71,36 +57,64 @@ void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	
 	EnhancedInputComponent->BindAction(InputToFire, ETriggerEvent::Triggered, this, &ATankPawn::TriggerFire);
 	EnhancedInputComponent->BindAction(InputToMoveForward, ETriggerEvent::Triggered, this, &ATankPawn::MoveForward);
-	EnhancedInputComponent->BindAction(InputToMoveRight, ETriggerEvent::Triggered, this, &ATankPawn::MoveRight);
+	EnhancedInputComponent->BindAction(InputToMoveRight, ETriggerEvent::Triggered, this, &ATankPawn::TurnRight);
 	
 }
 
 
 void ATankPawn::MoveForward(const FInputActionValue& Value)
 {
-	if(Controller != nullptr)
-	{
-		const FVector MoveVector = FVector(TankBaseSpeed,0.f,0.f);
-		AddActorLocalOffset(MoveVector * Value.Get<float>(), true,nullptr,ETeleportType::None);
-	}
+	const float InputValue = Value.Get<float>();
+	const FVector MoveVector = FVector(TankBaseSpeed, 0.f, 0.f);
+
+	const FVector MoveSpeed = MoveVector * InputValue;
 	
+	AddActorLocalOffset(MoveSpeed, true);
 }
 
 
-void ATankPawn::MoveRight(const FInputActionValue& Value)
+void ATankPawn::TurnRight(const FInputActionValue& Value)
 {
-	if (Controller != nullptr)
-	{
-		const float DeltaSeconds = GetWorld()->GetDeltaSeconds();
-		const FRotator TurnVector = FRotator(0.0f,TankBaseTurnSpeed,0.0f);
-		AddActorLocalRotation(TurnVector * Value.Get<float>() * DeltaSeconds, true, nullptr, ETeleportType::None);
-	}
+	const float InputValue = Value.Get<float>();
+	const float DeltaSeconds = GetWorld()->GetDeltaSeconds();
+	const FRotator TurnVector = FRotator(0.0f,  TankBaseTurnSpeed, 0.0f);
+
+	const FRotator RotationSpeed = TurnVector * InputValue * DeltaSeconds;
+	
+	AddActorLocalRotation(RotationSpeed, true);
 }
 
 
 void ATankPawn::TriggerFire()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Shoot!"));
+}
+
+void ATankPawn::AddMappingContextToInput() const
+{
+	const APlayerController* PlayerController = Cast<APlayerController>(this->GetController());
+	if (!PlayerController)
+	{
+		return;
+	}
+	
+	const ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PlayerController->GetLocalPlayer());
+	if(!LocalPlayer)
+	{
+		return;
+	}
+	
+	UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (!InputSystem)
+	{
+		return;
+	}
+	
+	if (!InputMapping)
+	{
+		return;
+	}
+	InputSystem->AddMappingContext(InputMapping, 0);
 }
 
 

@@ -92,6 +92,10 @@ void ATankPawn::TriggerFire()
 
 void ATankPawn::AddMappingContextToInput() const
 {
+	if (!InputMapping)
+	{
+		return;
+	}
 	const APlayerController* PlayerController = Cast<APlayerController>(this->GetController());
 	if (!PlayerController)
 	{
@@ -104,16 +108,12 @@ void ATankPawn::AddMappingContextToInput() const
 		return;
 	}
 	
-	UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	auto* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	if (!InputSystem)
 	{
 		return;
 	}
 	
-	if (!InputMapping)
-	{
-		return;
-	}
 	InputSystem->AddMappingContext(InputMapping, 0);
 }
 

@@ -38,22 +38,20 @@ TArray<FString> ATurretPawn::GetBaseMeshMaterialSlots() const
 	return TArray<FString> { TEXT("_Base_Material"), TEXT("Team_Material"), TEXT("Track_Material") }; 
 }
 
-void ATurretPawn::RotateTurretTowards(const FVector& MouseCursor)
+void ATurretPawn::RotateTurretTowards(const FVector& TargetLocation)
 {
 	check(TurretMesh)
-	{
-		const FVector TurretLocation = TurretMesh->GetComponentLocation();;
+	const FVector TurretLocation = TurretMesh->GetComponentLocation();;
 
-		FVector DirectionToCursor = MouseCursor - TurretLocation;
-		DirectionToCursor.Z = 0.0f;
+	FVector DirectionToCursor = TargetLocation - TurretLocation;
+	DirectionToCursor.Z = 0.0f;
 			
-		const FRotator CurrentRotation = TurretMesh->GetComponentRotation();
-		const FRotator TargetRotation = DirectionToCursor.Rotation();
+	const FRotator CurrentRotation = TurretMesh->GetComponentRotation();
+	const FRotator TargetRotation = DirectionToCursor.Rotation();
 			
-		const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation , GetWorld()->GetDeltaSeconds(), TurretRotatingInterpSpeed);
+	const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation , GetWorld()->GetDeltaSeconds(), TurretRotatingInterpSpeed);
 		
-		TurretMesh->SetWorldRotation(NewRotation);
-	}
+	TurretMesh->SetWorldRotation(NewRotation);
 }
 
 void ATurretPawn::Tick(float DeltaTime)

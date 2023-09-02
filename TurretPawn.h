@@ -28,7 +28,7 @@ protected:
 	UStaticMeshComponent* BaseMesh = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower", meta=(GetOptions = "GetBaseMeshMaterialSlots"))
-	FName MaterialSlotName;
+	FName MaterialSlotName = NAME_None;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
 	FName MaterialParameterName = NAME_None;

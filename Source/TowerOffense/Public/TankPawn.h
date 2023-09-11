@@ -7,7 +7,6 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputMappingContext.h"
-#include "Components/InterpToMovementComponent.h"
 #include "TankPawn.generated.h"
 
 /**
@@ -33,7 +32,9 @@ protected:
 	void TurnRight(const FInputActionValue& Value);
 	void TriggerFire();
 
-	void AddMappingContextToInput() const;	
+	void AddMappingContextToInput() const;
+	
+
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	USpringArmComponent* SpringArmComponent = nullptr;

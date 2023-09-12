@@ -21,8 +21,7 @@ protected:
 
 	void Fire() const;
 
-	TArray<float> GetPlayersDistanceToSphere(const TArray<AActor*>& Players) const;
-	FVector GetTheClosestPlayerLocation() const;
+	AActor* GetHighestPriorityTarget();
 
 	UPROPERTY(EditAnywhere)
 	USphereComponent* SphereComponent = nullptr;

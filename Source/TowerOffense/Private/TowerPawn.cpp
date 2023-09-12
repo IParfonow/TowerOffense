@@ -29,24 +29,18 @@ void ATowerPawn::Fire() const
 	
 }
 
-TArray<float> ATowerPawn::GetPlayersDistanceToSphere(const TArray<AActor*>& Players) const
+AActor* ATowerPawn::GetHighestPriorityTarget()
 {
 	FVector SphereCenter = SphereComponent->GetComponentLocation();
 	TArray<float> Distances;
-	for(AActor* Player : Players)
+	for(AActor* Target : OverlappingPawns)
 	{
-		FVector PlayerLocation = Player->GetActorLocation();
+		FVector PlayerLocation = Target->GetActorLocation();
 		float DistanceToSphere = FVector::Dist(PlayerLocation, SphereCenter);
 		Distances.Add(DistanceToSphere);
 	}
-	return Distances;
-}
-
-FVector ATowerPawn::GetTheClosestPlayerLocation() const
-{
 	int32 ClosestPlayerIndex = INDEX_NONE;
 	float MinDistance = TNumericLimits<float>::Max();
-	TArray<float> Distances = GetPlayersDistanceToSphere(OverlappingPawns);
 
 	for(int32 i = 0; i < Distances.Num(); ++i)
 	{
@@ -58,9 +52,9 @@ FVector ATowerPawn::GetTheClosestPlayerLocation() const
 	}
 	if(ClosestPlayerIndex != INDEX_NONE)
 	{
-		return OverlappingPawns[ClosestPlayerIndex]->GetActorLocation();
+		return OverlappingPawns[ClosestPlayerIndex];
 	}
-	return FVector(0.f,0.f,0.f);
+	return nullptr; 
 }
 
 void ATowerPawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -90,7 +84,7 @@ void ATowerPawn::Tick(float DeltaSeconds)
 
 	if(!OverlappingPawns.IsEmpty())
 	{
-		RotateTurretTowards(GetTheClosestPlayerLocation());
+		RotateTurretTowards(GetHighestPriorityTarget()->GetActorLocation());
 		TimeSinceLastFire += DeltaSeconds;
 			if(TimeSinceLastFire >= FireInterval)
 			{

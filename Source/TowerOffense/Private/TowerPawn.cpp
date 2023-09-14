@@ -35,13 +35,13 @@ AActor* ATowerPawn::GetHighestPriorityTarget()
 	
 	for(AActor* Target : OverlappingPawns)
 	{
-		if(!Target || !Target->IsValidLowLevel())
+		if(!IsValid(Target))
 		{
 			continue;
 		}
 		
 		FVector PlayerLocation = Target->GetActorLocation();
-		float DistanceToSphere = FVector::Dist(PlayerLocation, SphereCenter);
+		float DistanceToSphere = FVector::DistSquared(PlayerLocation, SphereCenter);
 		
 		if(DistanceToSphere < MinDistance)
 		{
@@ -49,7 +49,7 @@ AActor* ATowerPawn::GetHighestPriorityTarget()
 			ClosestTarget = Target;
 		}
 	}
-	return ClosestTarget; 
+	return ClosestTarget;
 }
 
 void ATowerPawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -74,9 +74,9 @@ void ATowerPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if(GetHighestPriorityTarget() != nullptr)
+	if(AActor* Target = GetHighestPriorityTarget())
 	{
-		RotateTurretTowards(GetHighestPriorityTarget()->GetActorLocation());
+		RotateTurretTowards(Target->GetActorLocation());
 		
 		TimeSinceLastFire += DeltaSeconds;
 			if(TimeSinceLastFire >= FireInterval)

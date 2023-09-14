@@ -12,7 +12,6 @@ ATowerPawn::ATowerPawn()
 	SphereComponent->SetupAttachment(RootComponent);
 	SphereComponent->SetRelativeLocation(FVector(0.f,0.f,0.f));
 	SphereComponent->SetSphereRadius(1000);
-	SphereComponent->SetCollisionProfileName("Trigger");
 
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ATowerPawn::OnOverlapBegin); 
 	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ATowerPawn::OnOverlapEnd); 
@@ -26,55 +25,48 @@ void ATowerPawn::BeginPlay()
 void ATowerPawn::Fire() const
 {
 	UE_LOG(LogTemp, Warning, TEXT("Tower Shoots!"));
-	
 }
 
 AActor* ATowerPawn::GetHighestPriorityTarget()
 {
 	FVector SphereCenter = SphereComponent->GetComponentLocation();
-	TArray<float> Distances;
+	float MinDistance = TNumericLimits<float>::Max();
+	AActor* ClosestTarget = nullptr;
+	
 	for(AActor* Target : OverlappingPawns)
 	{
+		if(!Target || !Target->IsValidLowLevel())
+		{
+			continue;
+		}
+		
 		FVector PlayerLocation = Target->GetActorLocation();
 		float DistanceToSphere = FVector::Dist(PlayerLocation, SphereCenter);
-		Distances.Add(DistanceToSphere);
-	}
-	int32 ClosestPlayerIndex = INDEX_NONE;
-	float MinDistance = TNumericLimits<float>::Max();
-
-	for(int32 i = 0; i < Distances.Num(); ++i)
-	{
-		if(Distances[i] < MinDistance)
+		
+		if(DistanceToSphere < MinDistance)
 		{
-			MinDistance = Distances[i];
-			ClosestPlayerIndex = i;
+			MinDistance = DistanceToSphere;
+			ClosestTarget = Target;
 		}
 	}
-	if(ClosestPlayerIndex != INDEX_NONE)
-	{
-		return OverlappingPawns[ClosestPlayerIndex];
-	}
-	return nullptr; 
+	return ClosestTarget; 
 }
 
 void ATowerPawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                 int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(OtherActor && OtherActor->IsA(APawn::StaticClass()))
+	for(TSubclassOf<APawn> TargetClass : TargetClasses)
 	{
-		ATankPawn* PawnActor = Cast<ATankPawn>(OtherActor);
-		if(PawnActor)
+		if(OtherActor->IsA(TargetClass))
 		{
 			OverlappingPawns.Add(OtherActor);
-			UE_LOG(LogTemp, Warning, TEXT("overlap"));
+			break;
 		}
 	}
-	
 }
 
 void ATowerPawn::OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("overlap ended"));
 	OverlappingPawns.Remove(OtherActor);
 }
 
@@ -82,9 +74,10 @@ void ATowerPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if(!OverlappingPawns.IsEmpty())
+	if(GetHighestPriorityTarget() != nullptr)
 	{
 		RotateTurretTowards(GetHighestPriorityTarget()->GetActorLocation());
+		
 		TimeSinceLastFire += DeltaSeconds;
 			if(TimeSinceLastFire >= FireInterval)
 			{

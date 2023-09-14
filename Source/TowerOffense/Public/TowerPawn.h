@@ -39,6 +39,9 @@ private:
 
 	UPROPERTY()
 	TArray<AActor*> OverlappingPawns;
+
+	UPROPERTY(EditAnywhere, Category= "Targeting")
+	TArray<TSubclassOf<APawn>> TargetClasses;
 	 
 	float TimeSinceLastFire = 0.0f;
 

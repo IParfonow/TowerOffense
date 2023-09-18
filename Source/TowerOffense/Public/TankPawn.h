@@ -30,7 +30,7 @@ protected:
 
 	void MoveForward(const FInputActionValue& Value);
 	void TurnRight(const FInputActionValue& Value);
-	void TriggerFire();
+	virtual void Fire() override;
 
 	void AddMappingContextToInput() const;
 	
@@ -59,4 +59,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
 	float TankBaseTurnSpeed = 20.0f;
+
+	UPROPERTY(EditAnywhere, Category= "Tank")
+	TSubclassOf<AActor> ProjectileClass = nullptr;
 };

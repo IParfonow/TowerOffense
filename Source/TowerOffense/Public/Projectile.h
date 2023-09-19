@@ -16,7 +16,7 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
-	float GetImpulsePower() const;
+	float GetImpulseMagnitude() const;
 	UStaticMeshComponent* GetMeshComponent() const;
 protected:
 	// Called when the game starts or when spawned

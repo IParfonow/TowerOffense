@@ -99,13 +99,12 @@ void ATankPawn::Fire()
 		if(AProjectile* SpawnedProjectile = Cast<AProjectile>(SpawnedActor))
 		{
 			FVector ImpulseDirection = ProjectileSpawnPoint->GetForwardVector();
-			FVector Impulse = ImpulseDirection * SpawnedProjectile->GetImpulsePower();
+			FVector Impulse = ImpulseDirection * SpawnedProjectile->GetImpulseMagnitude();
 			if(UStaticMeshComponent* ProjectileMesh = SpawnedProjectile->GetMeshComponent())
 			{
 				ProjectileMesh->AddImpulse(Impulse);
 			}
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Shoot!"));
 	}
 }
 

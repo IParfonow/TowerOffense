@@ -3,18 +3,12 @@
 
 #include "Projectile.h"
 
-// Sets default values
 AProjectile::AProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh Component"));
-	ProjectileMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	ProjectileMeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	ProjectileMeshComponent->SetSimulatePhysics(true);
-
-	
+	ProjectileMeshComponent->SetSimulatePhysics(true);	
 	RootComponent = ProjectileMeshComponent;
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
@@ -22,13 +16,12 @@ AProjectile::AProjectile()
 	ProjectileMeshComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 }
 
-// Called when the game starts or when spawned
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-float AProjectile::GetImpulsePower() const
+float AProjectile::GetImpulseMagnitude() const
 {
 	return ProjectileMovementComponent->InitialSpeed;
 }
@@ -41,10 +34,9 @@ UStaticMeshComponent* AProjectile::GetMeshComponent() const
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                         FVector NormalImpulse, const FHitResult& Hit)
 {
-	this->Destroy();
+	Destroy();
 }
 
-// Called every frame
 void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

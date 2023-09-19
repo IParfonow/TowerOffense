@@ -94,16 +94,12 @@ void ATankPawn::Fire()
 		FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
 		FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
 	
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation);
+		AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
 
-		if(AProjectile* SpawnedProjectile = Cast<AProjectile>(SpawnedActor))
+		check(SpawnedProjectile)
+		if(UProjectileMovementComponent* ProjectileMovementComponent = SpawnedProjectile->GetProjectileMoveComponent())
 		{
-			FVector ImpulseDirection = ProjectileSpawnPoint->GetForwardVector();
-			FVector Impulse = ImpulseDirection * SpawnedProjectile->GetImpulseMagnitude();
-			if(UStaticMeshComponent* ProjectileMesh = SpawnedProjectile->GetMeshComponent())
-			{
-				ProjectileMesh->AddImpulse(Impulse);
-			}
+			ProjectileMovementComponent->InitialSpeed = ImpulseMagnitude;
 		}
 	}
 }

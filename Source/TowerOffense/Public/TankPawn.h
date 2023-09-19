@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputMappingContext.h"
+#include "Projectile.h"
 #include "TankPawn.generated.h"
 
 /**
@@ -34,7 +35,6 @@ protected:
 
 	void AddMappingContextToInput() const;
 	
-
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	USpringArmComponent* SpringArmComponent = nullptr;
@@ -61,5 +61,8 @@ protected:
 	float TankBaseTurnSpeed = 20.0f;
 
 	UPROPERTY(EditAnywhere, Category= "Tank")
-	TSubclassOf<AActor> ProjectileClass = nullptr;
+	TSubclassOf<AProjectile> ProjectileClass = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Tank")
+	float ImpulseMagnitude = 7000.f;
 };

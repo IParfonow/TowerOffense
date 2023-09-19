@@ -8,7 +8,6 @@ AProjectile::AProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh Component"));
-	ProjectileMeshComponent->SetSimulatePhysics(true);	
 	RootComponent = ProjectileMeshComponent;
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
@@ -21,14 +20,9 @@ void AProjectile::BeginPlay()
 	Super::BeginPlay();
 }
 
-float AProjectile::GetImpulseMagnitude() const
+UProjectileMovementComponent* AProjectile::GetProjectileMoveComponent() const
 {
-	return ProjectileMovementComponent->InitialSpeed;
-}
-
-UStaticMeshComponent* AProjectile::GetMeshComponent() const
-{
-	return ProjectileMeshComponent;
+	return ProjectileMovementComponent;
 }
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

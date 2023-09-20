@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Projectile.h"
 #include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -24,6 +25,7 @@ ATankPawn::ATankPawn()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);	
 
+	
 }
 
 void ATankPawn::BeginPlay()
@@ -55,7 +57,7 @@ void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	
-	EnhancedInputComponent->BindAction(InputToFire, ETriggerEvent::Triggered, this, &ATankPawn::TriggerFire);
+	EnhancedInputComponent->BindAction(InputToFire, ETriggerEvent::Triggered, this, &ATankPawn::Fire);
 	EnhancedInputComponent->BindAction(InputToMoveForward, ETriggerEvent::Triggered, this, &ATankPawn::MoveForward);
 	EnhancedInputComponent->BindAction(InputToMoveRight, ETriggerEvent::Triggered, this, &ATankPawn::TurnRight);
 	
@@ -85,9 +87,21 @@ void ATankPawn::TurnRight(const FInputActionValue& Value)
 }
 
 
-void ATankPawn::TriggerFire()
+void ATankPawn::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Shoot!"));
+	if(ProjectileClass)
+	{
+		FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
+		FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+	
+		AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+
+		check(SpawnedProjectile)
+		if(UProjectileMovementComponent* ProjectileMovementComponent = SpawnedProjectile->GetProjectileMoveComponent())
+		{
+			ProjectileMovementComponent->InitialSpeed = ImpulseMagnitude;
+		}
+	}
 }
 
 void ATankPawn::AddMappingContextToInput() const
@@ -116,5 +130,4 @@ void ATankPawn::AddMappingContextToInput() const
 	
 	InputSystem->AddMappingContext(InputMapping, 0);
 }
-
 

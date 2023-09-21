@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/NavMovementComponent.h"
+#include "HealthComponent.h"
+#include "Projectile.h"
 #include "GameFramework/Pawn.h"
 
 #include "TurretPawn.generated.h"
@@ -21,39 +23,54 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	UCapsuleComponent* CapsuleComponent = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	UStaticMeshComponent* BaseMesh = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower", meta=(GetOptions = "GetBaseMeshMaterialSlots"))
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret", meta=(GetOptions = "GetBaseMeshMaterialSlots"))
 	FName MaterialSlotName = NAME_None;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	FName MaterialParameterName = NAME_None;
 	
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	FLinearColor TeamColor = FLinearColor::Black;
 	
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	UStaticMeshComponent* TurretMesh = nullptr;
 	
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	USceneComponent* ProjectileSpawnPoint = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	FName TeamColorParamName = NAME_None;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret Tower")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	float TurretRotatingInterpSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category= "Turret")
+	TSubclassOf<AProjectile> ProjectileClass = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Turret")
+	float ImpulseMagnitude = 7000.f;
+
+	UPROPERTY(EditDefaultsOnly, Category= "Health")
+	UHealthComponent* HealthComponent = nullptr;
 	
 	
 	UFUNCTION()
 	TArray<FString> GetBaseMeshMaterialSlots() const;
 
 	UFUNCTION()
-	void RotateTurretTowards(const FVector& MouseCursor);
+	virtual void Fire();
+
+	UFUNCTION()
+	void RotateTurretTowards(const FVector& TargetLocation);
+
+	UFUNCTION()
+	void HandleHealthChanges(float NewHealth, float Delta);
 public:
 
 	virtual void Tick(float DeltaTime) override;
@@ -61,5 +78,4 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 };

@@ -2,13 +2,14 @@
 
 
 #include "Projectile.h"
+#include "Kismet/GameplayStatics.h"
 
 AProjectile::AProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh Component"));
-	RootComponent = ProjectileMeshComponent;
+	RootComponent=ProjectileMeshComponent;
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 
@@ -28,6 +29,12 @@ UProjectileMovementComponent* AProjectile::GetProjectileMoveComponent() const
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                         FVector NormalImpulse, const FHitResult& Hit)
 {
+	check(Hit.GetActor());
+	AController* InstigatorController = GetOwner()->GetInstigatorController();
+	UClass* DamageTypeClass = UDamageType::StaticClass();
+
+	UGameplayStatics::ApplyDamage(OtherActor, Damage, InstigatorController, this, DamageTypeClass);
+	
 	Destroy();
 }
 

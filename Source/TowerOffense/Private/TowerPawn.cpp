@@ -22,9 +22,9 @@ void ATowerPawn::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ATowerPawn::Fire() const
+void ATowerPawn::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Tower Shoots!"));
+	ATurretPawn::Fire();
 }
 
 AActor* ATowerPawn::GetHighestPriorityTarget()

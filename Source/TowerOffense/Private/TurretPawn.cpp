@@ -84,7 +84,6 @@ void ATurretPawn::HandleHealthChanges(float NewHealth, float DamageAmount)
 			GameMode->OnPlayerDeath(this);
 		}	
 	}
-	return;
 }
 
 void ATurretPawn::Tick(float DeltaTime)

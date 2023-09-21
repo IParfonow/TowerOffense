@@ -89,7 +89,7 @@ void ATankPawn::TurnRight(const FInputActionValue& Value)
 
 void ATankPawn::Fire()
 {
-	ATurretPawn::Fire();
+	Super::Fire();
 }
 
 void ATankPawn::AddMappingContextToInput() const

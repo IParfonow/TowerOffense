@@ -24,7 +24,7 @@ void ATowerPawn::BeginPlay()
 
 void ATowerPawn::Fire()
 {
-	ATurretPawn::Fire();
+	Super::Fire();
 }
 
 AActor* ATowerPawn::GetHighestPriorityTarget()

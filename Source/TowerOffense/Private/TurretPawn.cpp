@@ -4,11 +4,11 @@
 #include "TurretPawn.h"
 
 
+#include "TowerOffenseGameMode.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// Sets default values
 ATurretPawn::ATurretPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -20,22 +20,43 @@ ATurretPawn::ATurretPawn()
 	BaseMesh->SetupAttachment(RootComponent);
 	
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret Mesh"));
-	TurretMesh->SetupAttachment(RootComponent);
+	TurretMesh->SetupAttachment(BaseMesh);
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Projectile Spawn Point"));
-	ProjectileSpawnPoint->SetupAttachment(RootComponent);
-	
+	ProjectileSpawnPoint->SetupAttachment(TurretMesh);
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 }
 
 void ATurretPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ATurretPawn::HandleHealthChanges);
 }
 
 
 TArray<FString> ATurretPawn::GetBaseMeshMaterialSlots() const
 {
 	return TArray<FString> { TEXT("_Base_Material"), TEXT("Team_Material"), TEXT("Track_Material") }; 
+}
+
+void ATurretPawn::Fire()
+{
+	if(ProjectileClass)
+	{
+		FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
+		FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+	
+		AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+
+		check(SpawnedProjectile)
+		if(UProjectileMovementComponent* ProjectileMovementComponent = SpawnedProjectile->GetProjectileMoveComponent())
+		{
+			SpawnedProjectile->SetOwner(this);
+			ProjectileMovementComponent->InitialSpeed = ImpulseMagnitude;
+		}
+	}
 }
 
 void ATurretPawn::RotateTurretTowards(const FVector& TargetLocation)
@@ -50,8 +71,19 @@ void ATurretPawn::RotateTurretTowards(const FVector& TargetLocation)
 	const FRotator TargetRotation = DirectionToCursor.Rotation();
 			
 	const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation , GetWorld()->GetDeltaSeconds(), TurretRotatingInterpSpeed);
-		
 	TurretMesh->SetWorldRotation(NewRotation);
+}
+
+void ATurretPawn::HandleHealthChanges(float NewHealth, float DamageAmount)
+{
+	if(NewHealth <= 0.f)
+	{
+		ATowerOffenseGameMode* GameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
+		if(GameMode)
+		{
+			GameMode->OnPlayerDeath(this);
+		}	
+	}
 }
 
 void ATurretPawn::Tick(float DeltaTime)
@@ -88,6 +120,5 @@ void ATurretPawn::PostInitializeComponents()
 void ATurretPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 

@@ -89,19 +89,7 @@ void ATankPawn::TurnRight(const FInputActionValue& Value)
 
 void ATankPawn::Fire()
 {
-	if(ProjectileClass)
-	{
-		FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
-		FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
-	
-		AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
-
-		check(SpawnedProjectile)
-		if(UProjectileMovementComponent* ProjectileMovementComponent = SpawnedProjectile->GetProjectileMoveComponent())
-		{
-			ProjectileMovementComponent->InitialSpeed = ImpulseMagnitude;
-		}
-	}
+	Super::Fire();
 }
 
 void ATankPawn::AddMappingContextToInput() const

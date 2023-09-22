@@ -7,7 +7,6 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputMappingContext.h"
-#include "Projectile.h"
 #include "TankPawn.generated.h"
 
 /**
@@ -60,9 +59,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
 	float TankBaseTurnSpeed = 20.0f;
 
-	UPROPERTY(EditAnywhere, Category= "Tank")
-	TSubclassOf<AProjectile> ProjectileClass = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Tank")
-	float ImpulseMagnitude = 7000.f;
+	// UPROPERTY(EditAnywhere, Category= "Tank")
+	// TSubclassOf<AProjectile> ProjectileClass = nullptr;
+	//
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Tank")
+	// float ImpulseMagnitude = 7000.f;
 };

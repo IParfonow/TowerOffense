@@ -19,13 +19,13 @@ class TOWEROFFENSE_API ATowerPawn : public ATurretPawn
 protected:
 	virtual void BeginPlay() override;
 
-	void Fire() const;
+	virtual void Fire() override;
 
 	AActor* GetHighestPriorityTarget();
 
 	UPROPERTY(EditAnywhere)
 	USphereComponent* SphereComponent = nullptr;
-
+	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Tower")
 	float FireInterval = 3.f;
 	

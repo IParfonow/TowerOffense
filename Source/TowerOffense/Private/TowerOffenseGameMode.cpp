@@ -4,6 +4,8 @@
 #include "TowerOffenseGameMode.h"
 #include "TurretPawn.h"
 #include "TankPawn.h"
+#include "TowerPawn.h"
+#include "Kismet/GameplayStatics.h"
 
 ATowerOffenseGameMode::ATowerOffenseGameMode()
 {
@@ -13,10 +15,51 @@ ATowerOffenseGameMode::ATowerOffenseGameMode()
 void ATowerOffenseGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	//TankPlayerController = Cast<ATankPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 
-void ATowerOffenseGameMode::OnPlayerDeath(ATurretPawn* DeadPawn)
+
+void ATowerOffenseGameMode::AddPawnToArray(ATurretPawn* Pawn)
 {
+	if(ATowerPawn* TowerPawn = Cast<ATowerPawn>(Pawn))
+	{
+		Enemies.Add(TowerPawn);
+	}
+	else if(ATankPawn* PlayerPawn = Cast<ATankPawn>(Pawn))
+	{
+		Players.Add(PlayerPawn);
+	}
+}
+
+void ATowerOffenseGameMode::OnPawnDeath(ATurretPawn* DeadPawn)
+{
+	ATankPlayerController*  DeadTankPlayerController = Cast<ATankPlayerController>(DeadPawn->GetController());
+	if(IsValid(DeadTankPlayerController))
+	{
+		if(ATankPawn* TankPawn = Cast<ATankPawn>(DeadPawn))
+		{
+			Players.Remove(TankPawn);
+			if(Players.Num() == 0)
+			{
+				DeadTankPlayerController->HandleEndGame(false);
+			}
+		}
+	}
+	
+	if(IsValid(TankPlayerController))
+	{
+		if(ATowerPawn* TowerPawn = Cast<ATowerPawn>(DeadPawn))
+		{
+			Enemies.Remove(TowerPawn);
+			if(Enemies.Num() == 0)
+			{
+				for(auto& aliveplayer : Players)
+				{
+					//TankPlayerController = Cast<ATankPlayerController>(aliveplayer->GetController());
+					TankPlayerController->HandleEndGame(true);
+				}
+			}
+		}
+	}
 	DeadPawn->Destroy();
-	UE_LOG(LogTemp, Warning, TEXT("You're literally dead."));
 }

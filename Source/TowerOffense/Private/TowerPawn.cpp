@@ -20,11 +20,17 @@ ATowerPawn::ATowerPawn()
 void ATowerPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	RegisterSpawnedPawn(this);
 }
 
 void ATowerPawn::Fire()
 {
 	Super::Fire();
+}
+
+void ATowerPawn::RegisterSpawnedPawn(ATurretPawn* SpawnedPawn)
+{
+	Super::RegisterSpawnedPawn(SpawnedPawn);
 }
 
 AActor* ATowerPawn::GetHighestPriorityTarget()

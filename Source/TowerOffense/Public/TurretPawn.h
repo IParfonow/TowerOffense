@@ -6,6 +6,7 @@
 #include "GameFramework/NavMovementComponent.h"
 #include "HealthComponent.h"
 #include "Projectile.h"
+#include "TowerOffenseGameMode.h"
 #include "GameFramework/Pawn.h"
 
 #include "TurretPawn.generated.h"
@@ -58,13 +59,18 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category= "Health")
 	UHealthComponent* HealthComponent = nullptr;
-	
+
+	UPROPERTY()
+	ATowerOffenseGameMode* TowerOffenseGameMode = nullptr;
 	
 	UFUNCTION()
 	TArray<FString> GetBaseMeshMaterialSlots() const;
 
 	UFUNCTION()
 	virtual void Fire();
+
+	UFUNCTION()
+	virtual void RegisterSpawnedPawn(ATurretPawn* SpawnedPawn);
 
 	UFUNCTION()
 	void RotateTurretTowards(const FVector& TargetLocation);

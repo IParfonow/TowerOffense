@@ -32,6 +32,8 @@ void ATurretPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	TowerOffenseGameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
+	
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ATurretPawn::HandleHealthChanges);
 }
 
@@ -59,6 +61,14 @@ void ATurretPawn::Fire()
 	}
 }
 
+void ATurretPawn::RegisterSpawnedPawn(ATurretPawn* SpawnedPawn)
+{
+	if(IsValid(TowerOffenseGameMode))
+	{
+		TowerOffenseGameMode->AddPawnToArray(SpawnedPawn);
+	}
+}
+
 void ATurretPawn::RotateTurretTowards(const FVector& TargetLocation)
 {
 	check(TurretMesh)
@@ -81,7 +91,7 @@ void ATurretPawn::HandleHealthChanges(float NewHealth, float DamageAmount)
 		ATowerOffenseGameMode* GameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
 		if(GameMode)
 		{
-			GameMode->OnPlayerDeath(this);
+			GameMode->OnPawnDeath(this);
 		}	
 	}
 }

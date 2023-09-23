@@ -14,3 +14,21 @@ void ATankPlayerController::SetPlayerEnabledState(bool bIsEnabled)
 		DisableInput(this);
 	}
 }
+
+void ATankPlayerController::HandleEndGame(bool IsPlayersWin)
+{
+	ShowEndGameWidget(IsPlayersWin ? WinClassWidget : LoseClassWidget);
+	SetPlayerEnabledState(false);
+}
+
+void ATankPlayerController::ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass)
+{
+	if(IsValid(WidgetClass))
+	{
+		UUserWidget* EndGameWidget = CreateWidget<UUserWidget>(GetGameInstance(),WidgetClass);
+		if(IsValid(EndGameWidget))
+		{
+			EndGameWidget->AddToViewport();
+		}
+	}
+}

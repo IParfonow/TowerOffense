@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Blueprint/UserWidget.h"
 #include "TankPlayerController.generated.h"
 
 /**
@@ -14,7 +15,21 @@ class TOWEROFFENSE_API ATankPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category= "Widgets")
+	TSubclassOf<UUserWidget> LoseClassWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category= "Widgets")
+	TSubclassOf<UUserWidget> WinClassWidget;
+	
 public:
 	UFUNCTION(BlueprintCallable, Category= "Player")
 	void SetPlayerEnabledState(bool bIsEnabled);
+
+	UFUNCTION()
+	void HandleEndGame(bool IsPlayersWin);
+
+	UFUNCTION()
+	void ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass);
+	
 };

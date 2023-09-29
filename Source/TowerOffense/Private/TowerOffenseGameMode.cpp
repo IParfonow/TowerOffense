@@ -15,7 +15,7 @@ ATowerOffenseGameMode::ATowerOffenseGameMode()
 void ATowerOffenseGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	//TankPlayerController = Cast<ATankPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	TankPlayerController = Cast<ATankPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 
 
@@ -42,6 +42,7 @@ void ATowerOffenseGameMode::OnPawnDeath(ATurretPawn* DeadPawn)
 			if(Players.Num() == 0)
 			{
 				DeadTankPlayerController->HandleEndGame(false);
+				GetWorld()->GetTimerManager().SetTimer(RestartTimerHandle,  this, &ATowerOffenseGameMode::RestartGame, TimeBeforeRestart ,  false);
 			}
 		}
 	}
@@ -53,13 +54,15 @@ void ATowerOffenseGameMode::OnPawnDeath(ATurretPawn* DeadPawn)
 			Enemies.Remove(TowerPawn);
 			if(Enemies.Num() == 0)
 			{
-				for(auto& aliveplayer : Players)
-				{
-					//TankPlayerController = Cast<ATankPlayerController>(aliveplayer->GetController());
-					TankPlayerController->HandleEndGame(true);
-				}
+				TankPlayerController->HandleEndGame(true);
+				GetWorld()->GetTimerManager().SetTimer(RestartTimerHandle,  this, &ATowerOffenseGameMode::RestartGame, TimeBeforeRestart ,  false);
 			}
 		}
 	}
 	DeadPawn->Destroy();
+}
+
+void ATowerOffenseGameMode::RestartGame()
+{
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }

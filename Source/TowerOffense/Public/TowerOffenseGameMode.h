@@ -22,9 +22,16 @@ public:
 	
 	UFUNCTION()
 	void OnPawnDeath(ATurretPawn* DeadPawn);
+
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void RestartGame();
+
+	UPROPERTY(EditDefaultsOnly)
+	float TimeBeforeRestart = 5.0f;
+	
 	UPROPERTY()
 	ATankPlayerController* TankPlayerController = nullptr;
 
@@ -33,5 +40,6 @@ protected:
 
 	UPROPERTY()
 	TArray<ATowerPawn*> Enemies;
-	
+private:
+	FTimerHandle RestartTimerHandle;
 };

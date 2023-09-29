@@ -3,6 +3,7 @@
 
 #include "TankPlayerController.h"
 
+
 void ATankPlayerController::SetPlayerEnabledState(bool bIsEnabled)
 {
 	if(bIsEnabled)
@@ -15,17 +16,21 @@ void ATankPlayerController::SetPlayerEnabledState(bool bIsEnabled)
 	}
 }
 
-void ATankPlayerController::HandleEndGame(bool IsPlayersWin)
+void ATankPlayerController::HandleEndGame(bool ArePlayersWin)
 {
-	ShowEndGameWidget(IsPlayersWin ? WinClassWidget : LoseClassWidget);
+	ShowEndGameWidget(ArePlayersWin ? WinClassWidget : LoseClassWidget);
 	SetPlayerEnabledState(false);
+
+	
 }
 
-void ATankPlayerController::ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass)
+
+
+void ATankPlayerController::ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass) const
 {
 	if(IsValid(WidgetClass))
 	{
-		UUserWidget* EndGameWidget = CreateWidget<UUserWidget>(GetGameInstance(),WidgetClass);
+		UUserWidget* EndGameWidget = CreateWidget(GetGameInstance(),WidgetClass);
 		if(IsValid(EndGameWidget))
 		{
 			EndGameWidget->AddToViewport();

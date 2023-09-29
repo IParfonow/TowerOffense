@@ -15,21 +15,21 @@ class TOWEROFFENSE_API ATankPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-protected:
+protected:	
 	UPROPERTY(EditDefaultsOnly, Category= "Widgets")
 	TSubclassOf<UUserWidget> LoseClassWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category= "Widgets")
 	TSubclassOf<UUserWidget> WinClassWidget;
-	
 public:
 	UFUNCTION(BlueprintCallable, Category= "Player")
 	void SetPlayerEnabledState(bool bIsEnabled);
 
 	UFUNCTION()
-	void HandleEndGame(bool IsPlayersWin);
+	void HandleEndGame(bool ArePlayersWin);
+	
 
 	UFUNCTION()
-	void ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass);
+	void ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass) const;
 	
 };

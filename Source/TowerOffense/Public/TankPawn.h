@@ -31,6 +31,7 @@ protected:
 	void MoveForward(const FInputActionValue& Value);
 	void TurnRight(const FInputActionValue& Value);
 	virtual void Fire() override;
+	virtual void RegisterSpawnedPawn(ATurretPawn* SpawnedPawn) override;
 
 	void AddMappingContextToInput() const;
 	
@@ -58,10 +59,4 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
 	float TankBaseTurnSpeed = 20.0f;
-
-	// UPROPERTY(EditAnywhere, Category= "Tank")
-	// TSubclassOf<AProjectile> ProjectileClass = nullptr;
-	//
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Tank")
-	// float ImpulseMagnitude = 7000.f;
 };

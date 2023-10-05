@@ -6,7 +6,6 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Projectile.h"
 #include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -32,6 +31,8 @@ void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	AddMappingContextToInput();
+
+	
 }
 	
 void ATankPawn::Tick(float DeltaSeconds)
@@ -90,6 +91,12 @@ void ATankPawn::TurnRight(const FInputActionValue& Value)
 void ATankPawn::Fire()
 {
 	Super::Fire();
+	RegisterSpawnedPawn(this);
+}
+
+void ATankPawn::RegisterSpawnedPawn(ATurretPawn* SpawnedPawn)
+{
+	Super::RegisterSpawnedPawn(SpawnedPawn);
 }
 
 void ATankPawn::AddMappingContextToInput() const

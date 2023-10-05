@@ -20,6 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void Fire() override;
+	virtual void RegisterSpawnedPawn(ATurretPawn* SpawnedPawn) override;
 
 	AActor* GetHighestPriorityTarget();
 

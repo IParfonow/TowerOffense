@@ -8,7 +8,6 @@
 #include "Projectile.h"
 #include "TowerOffenseGameMode.h"
 #include "GameFramework/Pawn.h"
-
 #include "TurretPawn.generated.h"
 
 UCLASS()

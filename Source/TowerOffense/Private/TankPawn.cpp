@@ -30,9 +30,6 @@ ATankPawn::ATankPawn()
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	AddMappingContextToInput();
-
-	
 }
 	
 void ATankPawn::Tick(float DeltaSeconds)

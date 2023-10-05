@@ -7,9 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "TankPlayerController.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class TOWEROFFENSE_API ATankPlayerController : public APlayerController
 {
@@ -21,15 +19,27 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category= "Widgets")
 	TSubclassOf<UUserWidget> WinClassWidget;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Game Logic")
+	float EndWidgetTimeDuration = 5.0f;
 public:
+
+	float GetEndWidgetTimeDuration() const;
+	
 	UFUNCTION(BlueprintCallable, Category= "Player")
 	void SetPlayerEnabledState(bool bIsEnabled);
 
 	UFUNCTION()
 	void HandleEndGame(bool ArePlayersWin);
 	
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass);
 
-	UFUNCTION()
-	void ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass) const;
-	
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void HideEndGameWidget();
+
+private:
+	FTimerHandle TimerHandle;
+	UPROPERTY()
+	UUserWidget* EndGameWidget = nullptr;
 };

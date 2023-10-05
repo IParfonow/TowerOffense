@@ -4,11 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "TankPlayerController.h"
+#include "Blueprint/UserWidget.h"
 #include "GameFramework/GameModeBase.h"
 #include "TowerOffenseGameMode.generated.h"
 
 class ATankPawn;
 class ATowerPawn;
+
+UENUM(BlueprintType)
+enum class EGameState : uint8
+{
+	MainMenu,
+	Playing,
+	Paused,
+	GameOver
+};
 
 UCLASS()
 class TOWEROFFENSE_API ATowerOffenseGameMode : public AGameModeBase
@@ -24,13 +34,45 @@ public:
 	void OnPawnDeath(ATurretPawn* DeadPawn);
 
 protected:
+	
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void RestartGame();
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void ChangeGameState(EGameState NewState);
+	
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void DelayStart(float DelayTime);
 
-	UPROPERTY(EditDefaultsOnly)
-	float TimeBeforeRestart = 5.0f;
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void StartGame();
+	
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void RestartGame();
+	
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void EndGame();
+
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void ShowMainMenu();
+
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void RemoveCurrentWidget();
+	
+protected:
+	UPROPERTY(BlueprintReadOnly, Category= "Game State")
+	EGameState CurrenGameState = EGameState::MainMenu;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> MainMenuWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PrepareWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> EndMenuWidgetClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TimeBeforeStart = 5.0f;
 	
 	UPROPERTY()
 	ATankPlayerController* TankPlayerController = nullptr;
@@ -40,6 +82,10 @@ protected:
 
 	UPROPERTY()
 	TArray<ATowerPawn*> Enemies;
+
 private:
 	FTimerHandle RestartTimerHandle;
+
+	UPROPERTY()
+	UUserWidget* CurrentMenuWidget = nullptr;
 };

@@ -26,6 +26,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	void AddMappingContextToInput() const;
 protected:
 
 	void MoveForward(const FInputActionValue& Value);
@@ -33,7 +34,6 @@ protected:
 	virtual void Fire() override;
 	virtual void RegisterSpawnedPawn(ATurretPawn* SpawnedPawn) override;
 
-	void AddMappingContextToInput() const;
 	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)

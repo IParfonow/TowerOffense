@@ -29,7 +29,7 @@ void ATowerOffenseGameMode::ChangeGameState(EGameState NewState)
 		break;
 		
 	case EGameState::Playing:
-		DelayStart(TimeBeforeStart);
+		DelayStart();
 		break;
 		
 	case EGameState::Paused:
@@ -89,7 +89,18 @@ void ATowerOffenseGameMode::OnPawnDeath(ATurretPawn* DeadPawn)
 	DeadPawn->Destroy();
 }
 
-void ATowerOffenseGameMode::DelayStart(float DelayTime)
+void ATowerOffenseGameMode::ReducePrepareTime()
+{
+	OnStartCountDown.Broadcast(TimeBeforeStart--);
+
+	if(TimeBeforeStart < 0)
+	{
+		GetWorldTimerManager().ClearTimer(RestartTimerHandle);
+		StartGame();
+	}
+}
+
+void ATowerOffenseGameMode::DelayStart()
 {
 	RemoveCurrentWidget();
 	if(IsValid(PrepareWidgetClass))
@@ -98,9 +109,9 @@ void ATowerOffenseGameMode::DelayStart(float DelayTime)
 		if(IsValid(CurrentMenuWidget))
 		{
 			CurrentMenuWidget->AddToViewport();
+			GetWorldTimerManager().SetTimer(RestartTimerHandle, this, &ATowerOffenseGameMode::ReducePrepareTime, 1.f, true, 0.f);
 		}
 	}
-	GetWorldTimerManager().SetTimer(RestartTimerHandle, this, &ATowerOffenseGameMode::StartGame, DelayTime, false);
 }
 
 void ATowerOffenseGameMode::StartGame()

@@ -20,6 +20,8 @@ enum class EGameState : uint8
 	GameOver
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStartCountDown, float, Time);
+
 UCLASS()
 class TOWEROFFENSE_API ATowerOffenseGameMode : public AGameModeBase
 {
@@ -33,6 +35,12 @@ public:
 	UFUNCTION()
 	void OnPawnDeath(ATurretPawn* DeadPawn);
 
+	UFUNCTION()
+	void ReducePrepareTime();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStartCountDown OnStartCountDown;
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -41,7 +49,7 @@ protected:
 	void ChangeGameState(EGameState NewState);
 	
 	UFUNCTION(BlueprintCallable, Category= "Game Logic")
-	void DelayStart(float DelayTime);
+	void DelayStart();
 
 	UFUNCTION(BlueprintCallable, Category= "Game Logic")
 	void StartGame();
@@ -57,8 +65,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category= "Game Logic")
 	void RemoveCurrentWidget();
-	
-protected:
+
+
+protected:	
 	UPROPERTY(BlueprintReadOnly, Category= "Game State")
 	EGameState CurrenGameState = EGameState::MainMenu;
 	

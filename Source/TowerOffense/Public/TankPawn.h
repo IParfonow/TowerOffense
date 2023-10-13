@@ -26,15 +26,15 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	void AddMappingContextToInput() const;
 protected:
 
 	void MoveForward(const FInputActionValue& Value);
+	void SpawnEmitter();
+	void DestroyEmitter();
 	void TurnRight(const FInputActionValue& Value);
 	virtual void Fire() override;
 	virtual void RegisterSpawnedPawn(ATurretPawn* SpawnedPawn) override;
-
-	void AddMappingContextToInput() const;
-	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	USpringArmComponent* SpringArmComponent = nullptr;
@@ -59,4 +59,22 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
 	float TankBaseTurnSpeed = 20.0f;
+
+	UPROPERTY()
+	APlayerController* PlayerController = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, Category= "Effects")
+	UParticleSystem* TrackDust = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	USceneComponent* LeftDustEmitterSpawnComponent = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	USceneComponent* RightDustEmitterSpawnComponent = nullptr;
+
+	UPROPERTY()
+	UParticleSystemComponent* LeftDustEmitterComponent = nullptr;
+
+	UPROPERTY()
+	UParticleSystemComponent* RightDustEmitterComponent = nullptr;
 };

@@ -1,14 +1,25 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 
 #include "TankPlayerController.h"
+#include "TankPawn.h"
 
+
+float ATankPlayerController::GetEndWidgetTimeDuration() const
+{
+	return EndWidgetTimeDuration;
+}
 
 void ATankPlayerController::SetPlayerEnabledState(bool bIsEnabled)
 {
-	if(bIsEnabled)
+	ATankPawn* ControlledTank = Cast<ATankPawn>(GetPawn());
+	if (!IsValid(ControlledTank))
+	{
+		return;
+	}
+	
+	if (bIsEnabled)
 	{
 		EnableInput(this);
+		ControlledTank->AddMappingContextToInput();
 	}
 	else
 	{
@@ -20,20 +31,28 @@ void ATankPlayerController::HandleEndGame(bool ArePlayersWin)
 {
 	ShowEndGameWidget(ArePlayersWin ? WinClassWidget : LoseClassWidget);
 	SetPlayerEnabledState(false);
-
-	
 }
 
 
-
-void ATankPlayerController::ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass) const
+void ATankPlayerController::ShowEndGameWidget(TSubclassOf<UUserWidget> WidgetClass)
 {
 	if(IsValid(WidgetClass))
 	{
-		UUserWidget* EndGameWidget = CreateWidget(GetGameInstance(),WidgetClass);
+		EndGameWidget = CreateWidget(GetGameInstance(),WidgetClass);
 		if(IsValid(EndGameWidget))
 		{
 			EndGameWidget->AddToViewport();
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,
+				&ATankPlayerController::HideEndGameWidget,EndWidgetTimeDuration,false);
 		}
+	}
+}
+
+void ATankPlayerController::HideEndGameWidget()
+{
+	if(IsValid(EndGameWidget))
+	{
+		EndGameWidget->RemoveFromParent();
+		EndGameWidget = nullptr;
 	}
 }

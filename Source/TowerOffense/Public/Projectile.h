@@ -26,6 +26,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category= "Projectile")
 	UProjectileMovementComponent* ProjectileMovementComponent = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category= "Effects")
+	UParticleSystem* HitEffect = nullptr;
 	
 	UPROPERTY(EditAnywhere, Category= "Projectile")
 	float Damage = 0.f;

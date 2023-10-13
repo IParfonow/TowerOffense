@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -24,22 +25,24 @@ ATankPawn::ATankPawn()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);	
 
-	
+	LeftDustEmitterSpawnComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Left Dust Emitter Scene Comp"));
+	LeftDustEmitterSpawnComponent->SetupAttachment(BaseMesh);
+
+	RightDustEmitterSpawnComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Right Dust Emitter Scene Comp"));
+	RightDustEmitterSpawnComponent->SetupAttachment(BaseMesh);
 }
 
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	AddMappingContextToInput();
-
-	
+	PlayerController = Cast<APlayerController>(GetController());
 }
 	
 void ATankPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if(PlayerController)
+	
+	if(IsValid(PlayerController))
 	{
 		FHitResult HitResult;		
 		const bool bHit = PlayerController->GetHitResultUnderCursor(ECC_Visibility, false , HitResult);
@@ -49,7 +52,6 @@ void ATankPawn::Tick(float DeltaSeconds)
 			DrawDebugSphere(GetWorld(), HitResult.Location, 20.0f, 12, FColor::Red, false, -1, 0, 1);
 		}
 	}
-	
 }
 
 void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -62,6 +64,8 @@ void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	EnhancedInputComponent->BindAction(InputToMoveForward, ETriggerEvent::Triggered, this, &ATankPawn::MoveForward);
 	EnhancedInputComponent->BindAction(InputToMoveRight, ETriggerEvent::Triggered, this, &ATankPawn::TurnRight);
 	
+	EnhancedInputComponent->BindAction(InputToMoveForward, ETriggerEvent::Started, this, &ATankPawn::SpawnEmitter);
+	EnhancedInputComponent->BindAction(InputToMoveForward, ETriggerEvent::Completed, this, &ATankPawn::DestroyEmitter);
 }
 
 
@@ -69,10 +73,33 @@ void ATankPawn::MoveForward(const FInputActionValue& Value)
 {
 	const float InputValue = Value.Get<float>();
 	const FVector MoveVector = FVector(TankBaseSpeed, 0.f, 0.f);
-
 	const FVector MoveSpeed = MoveVector * InputValue;
-	
+
 	AddActorLocalOffset(MoveSpeed, true);
+}
+
+void ATankPawn::SpawnEmitter()
+{
+	check(TrackDust);
+	
+	FVector LeftTrackLocation = LeftDustEmitterSpawnComponent->GetComponentLocation();
+	FVector RightTrackLocation = RightDustEmitterSpawnComponent->GetComponentLocation();
+	
+	LeftDustEmitterComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrackDust, LeftTrackLocation);
+	RightDustEmitterComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrackDust, RightTrackLocation);
+}
+
+void ATankPawn::DestroyEmitter()
+{
+	check(LeftDustEmitterComponent);
+	check(RightDustEmitterComponent);
+
+	LeftDustEmitterComponent->DestroyComponent();
+	LeftDustEmitterComponent = nullptr;
+
+	RightDustEmitterComponent->DestroyComponent();
+	RightDustEmitterComponent=nullptr;
+
 }
 
 
@@ -84,7 +111,7 @@ void ATankPawn::TurnRight(const FInputActionValue& Value)
 
 	const FRotator RotationSpeed = TurnVector * InputValue * DeltaSeconds;
 	
-	AddActorLocalRotation(RotationSpeed, true);
+	AddActorLocalRotation(RotationSpeed, true, 0, ETeleportType::TeleportPhysics);
 }
 
 
@@ -105,8 +132,8 @@ void ATankPawn::AddMappingContextToInput() const
 	{
 		return;
 	}
-	const APlayerController* PlayerController = Cast<APlayerController>(this->GetController());
-	if (!PlayerController)
+	const APlayerController* TankPlayerController = Cast<APlayerController>(this->GetController());
+	if (!TankPlayerController)
 	{
 		return;
 	}

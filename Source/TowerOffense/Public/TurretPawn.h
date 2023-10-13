@@ -19,10 +19,9 @@ public:
 	// Sets default values for this pawn's properties
 	ATurretPawn();
 
+	//PROPERTIES
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
+	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	UCapsuleComponent* CapsuleComponent = nullptr;
 
@@ -59,8 +58,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category= "Health")
 	UHealthComponent* HealthComponent = nullptr;
 
+	//EFFECTS
+
+	UPROPERTY(EditDefaultsOnly, Category= "Effects")
+	UParticleSystem* MuzzleFlash = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category= "Effects")
+	UParticleSystem* ExplosionEffect = nullptr;
+
 	UPROPERTY()
 	ATowerOffenseGameMode* TowerOffenseGameMode = nullptr;
+
+	//FUNCTIONS
+protected:
+	virtual void BeginPlay() override;
 	
 	UFUNCTION()
 	TArray<FString> GetBaseMeshMaterialSlots() const;

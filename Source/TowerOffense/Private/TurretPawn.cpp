@@ -57,6 +57,9 @@ void ATurretPawn::Fire()
 		{
 			SpawnedProjectile->SetOwner(this);
 			ProjectileMovementComponent->InitialSpeed = ImpulseMagnitude;
+
+			check(MuzzleFlash);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SpawnLocation, SpawnRotation);
 		}
 	}
 }
@@ -88,6 +91,9 @@ void ATurretPawn::HandleHealthChanges(float NewHealth, float DamageAmount)
 {
 	if(NewHealth <= 0.f)
 	{
+		check(ExplosionEffect);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), FRotator::ZeroRotator);
+
 		ATowerOffenseGameMode* GameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
 		if(GameMode)
 		{

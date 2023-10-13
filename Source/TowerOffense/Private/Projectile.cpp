@@ -33,6 +33,9 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	AController* InstigatorController = GetOwner()->GetInstigatorController();
 	UClass* DamageTypeClass = UDamageType::StaticClass();
 
+	check(HitEffect)
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.Location, FRotator::ZeroRotator);
+
 	UGameplayStatics::ApplyDamage(OtherActor, Damage, InstigatorController, this, DamageTypeClass);
 	
 	Destroy();

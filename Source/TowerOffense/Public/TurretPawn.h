@@ -58,6 +58,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category= "Health")
 	UHealthComponent* HealthComponent = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category= "Camera Shake")
+	TSubclassOf<UCameraShakeBase> CameraShakeClass;
+
 	//EFFECTS
 
 	UPROPERTY(EditDefaultsOnly, Category= "Effects")
@@ -87,6 +90,10 @@ protected:
 
 	UFUNCTION()
 	void HandleHealthChanges(float NewHealth, float Delta);
+
+	UPROPERTY()
+	ATankPlayerController* PlayerController = nullptr;
+	
 
 	//SFX
 	

@@ -33,6 +33,7 @@ void ATurretPawn::BeginPlay()
 	Super::BeginPlay();
 
 	TowerOffenseGameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
+	PlayerController = Cast<ATankPlayerController>(this->GetController());
 	
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ATurretPawn::HandleHealthChanges);
 }
@@ -106,6 +107,11 @@ void ATurretPawn::HandleHealthChanges(float NewHealth, float DamageAmount)
 			UGameplayStatics::SpawnSoundAtLocation(this, TurretExplosionSoundBase, GetActorLocation());
 		}
 
+		if(IsValid(PlayerController))
+		{
+			PlayerController->ClientStartCameraShake(CameraShakeClass);
+		}
+		
 		ATowerOffenseGameMode* GameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
 		if(GameMode)
 		{

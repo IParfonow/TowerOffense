@@ -39,9 +39,8 @@ ATankPawn::ATankPawn()
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	PlayerController = Cast<APlayerController>(GetController());
 
-	
+	RegisterSpawnedPawn(this);
 }
 	
 void ATankPawn::Tick(float DeltaSeconds)
@@ -136,7 +135,13 @@ void ATankPawn::TurnRight(const FInputActionValue& Value)
 void ATankPawn::Fire()
 {
 	Super::Fire();
-	RegisterSpawnedPawn(this);
+	if(CameraShakeClass)
+	{
+		if(IsValid(PlayerController))
+		{
+			PlayerController->ClientStartCameraShake(CameraShakeClass);
+		}
+	}
 }
 
 void ATankPawn::RegisterSpawnedPawn(ATurretPawn* SpawnedPawn)

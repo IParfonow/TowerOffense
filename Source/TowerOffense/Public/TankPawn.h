@@ -60,9 +60,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
 	float TankBaseTurnSpeed = 20.0f;
 	
-	
-	UPROPERTY()
-	APlayerController* PlayerController = nullptr;
 
 	//VFX
 	

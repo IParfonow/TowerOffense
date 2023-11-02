@@ -58,8 +58,15 @@ void ATurretPawn::Fire()
 			SpawnedProjectile->SetOwner(this);
 			ProjectileMovementComponent->InitialSpeed = ImpulseMagnitude;
 
-			check(MuzzleFlash);
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SpawnLocation, SpawnRotation);
+			if(MuzzleFlash)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SpawnLocation, SpawnRotation);
+			}
+
+			if(TurretShootSoundBase)
+			{
+				UGameplayStatics::SpawnSoundAtLocation(this, TurretShootSoundBase, GetActorLocation());
+			}
 		}
 	}
 }
@@ -94,11 +101,23 @@ void ATurretPawn::HandleHealthChanges(float NewHealth, float DamageAmount)
 		check(ExplosionEffect);
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), FRotator::ZeroRotator);
 
+		if(TurretExplosionSoundBase)
+		{
+			UGameplayStatics::SpawnSoundAtLocation(this, TurretExplosionSoundBase, GetActorLocation());
+		}
+
 		ATowerOffenseGameMode* GameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
 		if(GameMode)
 		{
 			GameMode->OnPawnDeath(this);
 		}	
+	}
+	else
+	{
+		if(TurretGetHitSoundBase)
+		{
+			UGameplayStatics::SpawnSoundAtLocation(this, TurretGetHitSoundBase, GetActorLocation());
+		}
 	}
 }
 

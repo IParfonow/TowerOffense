@@ -87,6 +87,18 @@ protected:
 
 	UFUNCTION()
 	void HandleHealthChanges(float NewHealth, float Delta);
+
+	//SFX
+	
+	UPROPERTY(EditDefaultsOnly, Category= "SFX")
+	USoundBase* TurretGetHitSoundBase = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, Category= "SFX")
+	USoundBase* TurretShootSoundBase = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, Category= "SFX")
+	USoundBase* TurretExplosionSoundBase = nullptr;
+	
 public:
 
 	virtual void Tick(float DeltaTime) override;

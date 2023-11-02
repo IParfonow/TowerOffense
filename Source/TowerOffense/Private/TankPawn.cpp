@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Components/AudioComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -30,12 +31,17 @@ ATankPawn::ATankPawn()
 
 	RightDustEmitterSpawnComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Right Dust Emitter Scene Comp"));
 	RightDustEmitterSpawnComponent->SetupAttachment(BaseMesh);
+
+	EngineSound = CreateDefaultSubobject<UAudioComponent>(TEXT("Engine Sound"));
+	EngineSound->SetupAttachment(RootComponent);
 }
 
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerController = Cast<APlayerController>(GetController());
+
+	
 }
 	
 void ATankPawn::Tick(float DeltaSeconds)
@@ -52,6 +58,9 @@ void ATankPawn::Tick(float DeltaSeconds)
 			DrawDebugSphere(GetWorld(), HitResult.Location, 20.0f, 12, FColor::Red, false, -1, 0, 1);
 		}
 	}
+	
+	
+
 }
 
 void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -76,30 +85,39 @@ void ATankPawn::MoveForward(const FInputActionValue& Value)
 	const FVector MoveSpeed = MoveVector * InputValue;
 
 	AddActorLocalOffset(MoveSpeed, true);
+
+	if (LeftDustEmitterComponent && LeftDustEmitterSpawnComponent)
+	{
+		LeftDustEmitterComponent->SetWorldLocation(LeftDustEmitterSpawnComponent->GetComponentLocation());
+	}
+	if (RightDustEmitterComponent && RightDustEmitterSpawnComponent)
+	{
+		RightDustEmitterComponent->SetWorldLocation(RightDustEmitterSpawnComponent->GetComponentLocation());
+	}
 }
 
 void ATankPawn::SpawnEmitter()
 {
-	check(TrackDust);
+	if(IsValid(TrackDust))
+	{
+		FVector LeftTrackLocation = LeftDustEmitterSpawnComponent->GetComponentLocation();
+		FVector RightTrackLocation = RightDustEmitterSpawnComponent->GetComponentLocation();
 	
-	FVector LeftTrackLocation = LeftDustEmitterSpawnComponent->GetComponentLocation();
-	FVector RightTrackLocation = RightDustEmitterSpawnComponent->GetComponentLocation();
-	
-	LeftDustEmitterComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrackDust, LeftTrackLocation);
-	RightDustEmitterComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrackDust, RightTrackLocation);
+		LeftDustEmitterComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrackDust, LeftTrackLocation, FRotator::ZeroRotator, FVector(1),false);
+		RightDustEmitterComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrackDust, RightTrackLocation, FRotator::ZeroRotator, FVector(1),false);
+	}
 }
 
 void ATankPawn::DestroyEmitter()
 {
-	check(LeftDustEmitterComponent);
-	check(RightDustEmitterComponent);
+	if(LeftDustEmitterComponent && RightDustEmitterComponent)
+	{
+		LeftDustEmitterComponent->DestroyComponent();
+		LeftDustEmitterComponent = nullptr;
 
-	LeftDustEmitterComponent->DestroyComponent();
-	LeftDustEmitterComponent = nullptr;
-
-	RightDustEmitterComponent->DestroyComponent();
-	RightDustEmitterComponent=nullptr;
-
+		RightDustEmitterComponent->DestroyComponent();
+		RightDustEmitterComponent=nullptr;
+	}
 }
 
 

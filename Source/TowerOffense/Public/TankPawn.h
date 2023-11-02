@@ -55,13 +55,16 @@ protected:
 	UInputAction* InputToMoveRight = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
-	float TankBaseSpeed = 3.0f;
+	float TankBaseSpeed = 3.f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
 	float TankBaseTurnSpeed = 20.0f;
-
+	
+	
 	UPROPERTY()
 	APlayerController* PlayerController = nullptr;
+
+	//VFX
 	
 	UPROPERTY(EditDefaultsOnly, Category= "Effects")
 	UParticleSystem* TrackDust = nullptr;
@@ -77,4 +80,10 @@ protected:
 
 	UPROPERTY()
 	UParticleSystemComponent* RightDustEmitterComponent = nullptr;
+
+	//SFX
+
+	UPROPERTY(EditDefaultsOnly, Category= "Audio")
+	UAudioComponent* EngineSound = nullptr;
+	
 };

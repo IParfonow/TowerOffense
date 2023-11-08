@@ -5,6 +5,7 @@
 #include "TurretPawn.h"
 #include "TankPawn.h"
 #include "TowerPawn.h"
+#include "TowerOffenseHUD.h"
 #include "Kismet/GameplayStatics.h"
 
 ATowerOffenseGameMode::ATowerOffenseGameMode()
@@ -37,6 +38,11 @@ void ATowerOffenseGameMode::ChangeGameState(EGameState NewState)
 		break;
 
 	case EGameState::GameOver:
+		ATowerOffenseHUD* HUD = Cast<ATowerOffenseHUD>(UGameplayStatics::GetPlayerController(this,0)->GetHUD());
+		if(HUD)
+		{
+			HUD->SetWidgetVisibility(false);
+		}
 		EndGame();
 		break;		
 	}
@@ -98,6 +104,11 @@ void ATowerOffenseGameMode::ReducePrepareTime()
 		GetWorldTimerManager().ClearTimer(RestartTimerHandle);
 		StartGame();
 	}
+}
+
+int32 ATowerOffenseGameMode::GetEnemiesCount() const
+{
+	return Enemies.Num();
 }
 
 void ATowerOffenseGameMode::DelayStart()

@@ -34,7 +34,11 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChanged OnHealthChanged;
+
+	UFUNCTION()
+	float GetMaxHealth() const;
 	
 	UFUNCTION()
-	void TakeDamage(AActor* DamagedActor,float DamageAmount,const UDamageType* DamageType, AController* EventInstigator, AActor* DamageCauser); 
+	void TakeDamage(AActor* DamagedActor,float DamageAmount,const UDamageType* DamageType, AController* EventInstigator, AActor* DamageCauser);
+	
 };

@@ -127,6 +127,11 @@ void ATurretPawn::HandleHealthChanges(float NewHealth, float DamageAmount)
 	}
 }
 
+UHealthComponent* ATurretPawn::GetHealthComponent_Implementation()
+{
+	return HealthComponent;
+}
+
 void ATurretPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -156,6 +161,8 @@ void ATurretPawn::PostInitializeComponents()
 		}
 	}
 }
+
+
 
 // Called to bind functionality to input
 void ATurretPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

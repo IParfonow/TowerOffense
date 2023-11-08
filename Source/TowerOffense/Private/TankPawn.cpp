@@ -9,6 +9,7 @@
 #include "Components/AudioComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Engine/StreamableManager.h"
+#include "TowerOffenseHUD.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -57,6 +58,16 @@ void ATankPawn::Tick(float DeltaSeconds)
 			DrawDebugSphere(GetWorld(), HitResult.Location, 20.0f, 12, FColor::Red, false, -1, 0, 1);
 		}
 	}
+
+	if(!bIsReloaded)
+	{
+		TimeSinceLastFire += DeltaSeconds;
+		if(TimeSinceLastFire >= FireInterval)
+		{
+			bIsReloaded = true;
+		}
+	}
+	
 	
 	
 
@@ -134,14 +145,28 @@ void ATankPawn::TurnRight(const FInputActionValue& Value)
 
 void ATankPawn::Fire()
 {
-	Super::Fire();
-	if(CameraShakeClass)
+	if(Ammo == 0)
 	{
-		if(IsValid(PlayerController))
+		return;
+	}
+
+	if(bIsReloaded)
+	{
+		Super::Fire();
+		Ammo--;
+		TimeSinceLastFire = 0.f;
+		if(CameraShakeClass)
 		{
 			PlayerController->ClientStartCameraShake(CameraShakeClass);
 		}
+
+		ATowerOffenseHUD* HUD = Cast<ATowerOffenseHUD>(UGameplayStatics::GetPlayerController(this,0)->GetHUD());
+		if(HUD)
+		{
+			HUD->InitializeHUDState();
+		}
 	}
+	bIsReloaded = false;
 }
 
 void ATankPawn::RegisterSpawnedPawn(ATurretPawn* SpawnedPawn)
@@ -175,4 +200,5 @@ void ATankPawn::AddMappingContextToInput() const
 	
 	InputSystem->AddMappingContext(InputMapping, 0);
 }
+
 

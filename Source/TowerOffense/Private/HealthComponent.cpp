@@ -27,7 +27,12 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 void UHealthComponent::PostInitProperties()
 {
 	Super::PostInitProperties();
-	CurrentHealth = MaxHealth;
+	CurrentHealth = GetMaxHealth();
+}
+
+float UHealthComponent::GetMaxHealth() const
+{
+	return MaxHealth;
 }
 
 void UHealthComponent::TakeDamage(AActor* DamagedActor,float DamageAmount,const UDamageType* DamageType, AController* EventInstigator,

@@ -9,9 +9,7 @@
 #include "InputMappingContext.h"
 #include "TankPawn.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class TOWEROFFENSE_API ATankPawn : public ATurretPawn
 {
@@ -26,15 +24,20 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	//FUNTCTIONS
+	
 	void AddMappingContextToInput() const;
-protected:
 
+protected:
+	
 	void MoveForward(const FInputActionValue& Value);
 	void SpawnEmitter();
 	void DestroyEmitter();
 	void TurnRight(const FInputActionValue& Value);
 	virtual void Fire() override;
 	virtual void RegisterSpawnedPawn(ATurretPawn* SpawnedPawn) override;
+
+	//PROPERTIES
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	USpringArmComponent* SpringArmComponent = nullptr;
@@ -59,9 +62,18 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Movement")
 	float TankBaseTurnSpeed = 20.0f;
-	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Ammunition")
+	int32 Ammo = 0;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Tank")
+	float FireInterval = 3.f;
+
+	bool bIsReloaded = false;
+public:
 
 	//VFX
+protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category= "Effects")
 	UParticleSystem* TrackDust = nullptr;
@@ -77,6 +89,8 @@ protected:
 
 	UPROPERTY()
 	UParticleSystemComponent* RightDustEmitterComponent = nullptr;
+
+	
 
 	//SFX
 

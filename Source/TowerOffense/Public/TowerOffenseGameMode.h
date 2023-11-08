@@ -38,6 +38,9 @@ public:
 	UFUNCTION()
 	void ReducePrepareTime();
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetEnemiesCount() const;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnStartCountDown OnStartCountDown;
 

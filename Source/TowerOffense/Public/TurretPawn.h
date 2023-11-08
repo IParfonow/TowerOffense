@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/NavMovementComponent.h"
 #include "HealthComponent.h"
+#include "HealthComponentProvider.h"
 #include "Projectile.h"
 #include "TowerOffenseGameMode.h"
 #include "GameFramework/Pawn.h"
 #include "TurretPawn.generated.h"
 
 UCLASS()
-class TOWEROFFENSE_API ATurretPawn : public APawn
+class TOWEROFFENSE_API ATurretPawn : public APawn, public IHealthComponentProvider
 {
 	GENERATED_BODY()
 
@@ -72,6 +73,10 @@ protected:
 	UPROPERTY()
 	ATowerOffenseGameMode* TowerOffenseGameMode = nullptr;
 
+	UPROPERTY()
+	ATankPlayerController* PlayerController = nullptr;
+
+	float TimeSinceLastFire = 0.0f;
 	//FUNCTIONS
 protected:
 	virtual void BeginPlay() override;
@@ -91,8 +96,8 @@ protected:
 	UFUNCTION()
 	void HandleHealthChanges(float NewHealth, float Delta);
 
-	UPROPERTY()
-	ATankPlayerController* PlayerController = nullptr;
+	virtual UHealthComponent* GetHealthComponent_Implementation() override;
+
 	
 
 	//SFX

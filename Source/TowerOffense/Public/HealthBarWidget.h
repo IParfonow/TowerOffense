@@ -23,10 +23,11 @@ protected:
 	float Health = 0.f;
 	
 	float MaxHealth = 0.f;
-
-	UPROPERTY()
-	APawn* OwningPawn = nullptr;
-
+	
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentHealth(float CurrentHealth, float DamageAmount);
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void SetUpHealthBarOwner(APawn* Owner);
 };

@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "PlayerHealthBarWidget.h"
 #include "Components/AudioComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Engine/StreamableManager.h"
@@ -42,6 +43,7 @@ void ATankPawn::BeginPlay()
 	Super::BeginPlay();
 
 	RegisterSpawnedPawn(this);
+	
 }
 	
 void ATankPawn::Tick(float DeltaSeconds)

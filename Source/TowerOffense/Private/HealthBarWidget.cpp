@@ -12,20 +12,6 @@ void UHealthBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	OwningPawn = GetOwningPlayerPawn();
-	IHealthComponentProvider* HealthComponentProvider = Cast<IHealthComponentProvider>(OwningPawn);
-	if(HealthComponentProvider)
-	{
-		UHealthComponent* HealthComponent = HealthComponentProvider->Execute_GetHealthComponent(OwningPawn);
-		if(HealthComponent)
-		{
-			MaxHealth = HealthComponent->GetMaxHealth();
-			Health = MaxHealth;
-
-			HealthComponent->OnHealthChanged.AddDynamic(this, &UHealthBarWidget::SetCurrentHealth);
-		}
-	}
-	
 }
 
 void UHealthBarWidget::SetCurrentHealth(float CurrentHealth, float DamageAmount)
@@ -35,4 +21,20 @@ void UHealthBarWidget::SetCurrentHealth(float CurrentHealth, float DamageAmount)
 	ATowerOffenseHUD* HUD = Cast<ATowerOffenseHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 
 	HUD->InitializeHUDState();
+}
+
+void UHealthBarWidget::SetUpHealthBarOwner(APawn* Owner)
+{
+	IHealthComponentProvider* HealthComponentProvider = Cast<IHealthComponentProvider>(Owner);
+	if(HealthComponentProvider)
+	{
+		UHealthComponent* HealthComponent = HealthComponentProvider->Execute_GetHealthComponent(Owner);
+		if(HealthComponent)
+		{
+			MaxHealth = HealthComponent->GetMaxHealth();
+			Health = MaxHealth;
+
+			HealthComponent->OnHealthChanged.AddDynamic(this, &UHealthBarWidget::SetCurrentHealth);
+		}
+	}
 }

@@ -3,6 +3,7 @@
 
 #include "TowerPawn.h"
 
+#include "TowerHealthBarWidget.h"
 #include "VectorTypes.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -14,13 +15,23 @@ ATowerPawn::ATowerPawn()
 	SphereComponent->SetSphereRadius(1000);
 
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ATowerPawn::OnOverlapBegin); 
-	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ATowerPawn::OnOverlapEnd); 
+	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ATowerPawn::OnOverlapEnd);
+
+	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar Component"));
+	HealthBarComponent->SetupAttachment(RootComponent);
 }
 
 void ATowerPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	RegisterSpawnedPawn(this);
+
+
+	UTowerHealthBarWidget* TowerHealthBarWidget = Cast<UTowerHealthBarWidget>(HealthBarComponent->GetWidget());
+	if(TowerHealthBarWidget)
+	{
+		TowerHealthBarWidget->SetUpHealthBarOwner(this);
+	}
 }
 
 void ATowerPawn::Fire()
@@ -91,4 +102,14 @@ void ATowerPawn::Tick(float DeltaSeconds)
 				TimeSinceLastFire = 0.f;
 			}
 	}
+
+	APlayerCameraManager* PlayerCameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	FVector HealthBarLocation = HealthBarComponent->GetComponentLocation();
+	FVector CameraLocation = PlayerCameraManager->GetCameraLocation();
+
+	FVector PlayerCameraLocation = CameraLocation - HealthBarLocation;
+	FRotator HealthBarRotation = PlayerCameraLocation.Rotation();
+	HealthBarComponent->SetWorldRotation(HealthBarRotation);
+
 }

@@ -46,7 +46,7 @@ void ATowerOffenseHUD::SetWidgetVisibility(bool bIsVisible)
 	ShellsCounter->SetVisibility(Type);
 }
 
-void ATowerOffenseHUD::InitializeHUDState()
+void ATowerOffenseHUD::RestoreWidgetsVisibility()
 {
 	SetWidgetVisibility(true);
 	VisibilityTime = 0.f;

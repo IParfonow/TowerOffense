@@ -70,7 +70,7 @@ protected:
 	void RemoveCurrentWidget();
 
 
-protected:	
+
 	UPROPERTY(BlueprintReadOnly, Category= "Game State")
 	EGameState CurrenGameState = EGameState::MainMenu;
 	
@@ -82,6 +82,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> EndMenuWidgetClass;
+
+	// UPROPERTY()
+	// ATowerOffenseHUD* HUD = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimeBeforeStart = 5.0f;

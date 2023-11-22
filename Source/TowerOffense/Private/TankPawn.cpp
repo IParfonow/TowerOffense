@@ -57,22 +57,17 @@ void ATankPawn::Tick(float DeltaSeconds)
 		if(bHit)
 		{
 			RotateTurretTowards(HitResult.Location);	
-			DrawDebugSphere(GetWorld(), HitResult.Location, 20.0f, 12, FColor::Red, false, -1, 0, 1);
 		}
 	}
 
 	if(!bIsReloaded)
 	{
 		TimeSinceLastFire += DeltaSeconds;
-		if(TimeSinceLastFire >= FireInterval)
+		if(TimeSinceLastFire >= ReloadTime)
 		{
 			bIsReloaded = true;
 		}
 	}
-	
-	
-	
-
 }
 
 void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -165,7 +160,7 @@ void ATankPawn::Fire()
 		ATowerOffenseHUD* HUD = Cast<ATowerOffenseHUD>(UGameplayStatics::GetPlayerController(this,0)->GetHUD());
 		if(HUD)
 		{
-			HUD->InitializeHUDState();
+			HUD->RestoreWidgetsVisibility();
 		}
 	}
 	bIsReloaded = false;

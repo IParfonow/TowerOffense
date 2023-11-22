@@ -4,7 +4,6 @@
 #include "HealthBarWidget.h"
 #include "TowerOffenseHUD.h"
 #include "HealthComponentProvider.h"
-#include "TowerOffenseHUD.h"
 #include "HealthComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -20,7 +19,7 @@ void UHealthBarWidget::SetCurrentHealth(float CurrentHealth, float DamageAmount)
 
 	ATowerOffenseHUD* HUD = Cast<ATowerOffenseHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 
-	HUD->InitializeHUDState();
+	HUD->RestoreWidgetsVisibility();
 }
 
 void UHealthBarWidget::SetUpHealthBarOwner(APawn* Owner)

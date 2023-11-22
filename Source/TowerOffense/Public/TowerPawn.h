@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TankPawn.h"
 #include "TurretPawn.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
@@ -27,9 +26,6 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	USphereComponent* SphereComponent = nullptr;
-	
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Tower")
-	float FireInterval = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UWidgetComponent* HealthBarComponent = nullptr;
@@ -39,6 +35,9 @@ protected:
 	
 	UFUNCTION()
 	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	bool HasClearLineOfSightTo(AActor* TargetActor) const;
 
 private:
 

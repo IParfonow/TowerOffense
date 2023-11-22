@@ -2,8 +2,6 @@
 
 
 #include "TurretPawn.h"
-
-
 #include "TowerOffenseGameMode.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -33,23 +31,76 @@ void ATurretPawn::BeginPlay()
 	Super::BeginPlay();
 
 	TowerOffenseGameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
+	if(!IsValid(TowerOffenseGameMode))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TO GameMode is not valid"));
+	}
 	PlayerController = Cast<ATankPlayerController>(this->GetController());
+	if(!IsValid(PlayerController))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TO PlayerController is not valid"));
+	}
 	
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ATurretPawn::HandleHealthChanges);
 }
 
+void ATurretPawn::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void ATurretPawn::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if(BaseMesh && TurretMesh &&!TeamColorParamName.IsNone())
+	{
+		const int32 BaseMaterialIndex = BaseMesh->GetMaterialIndex(MaterialSlotName);
+		const int32 TurretMaterialIndex = TurretMesh->GetMaterialIndex(MaterialSlotName);
+
+		if(BaseMaterialIndex != INDEX_NONE && TurretMaterialIndex != INDEX_NONE)
+		{
+			if(UMaterialInstanceDynamic* TurretColorMaterial = TurretMesh->CreateDynamicMaterialInstance(TurretMaterialIndex))
+			{
+				TurretColorMaterial->SetVectorParameterValue(TeamColorParamName, TeamColor);
+				TurretMesh->SetMaterial(BaseMaterialIndex, TurretColorMaterial);
+			}
+			if(UMaterialInstanceDynamic* HullColor = BaseMesh->CreateDynamicMaterialInstance(BaseMaterialIndex))
+			{
+				HullColor->SetVectorParameterValue(TeamColorParamName, TeamColor);
+				BaseMesh->SetMaterial(BaseMaterialIndex, HullColor);
+			}
+		}
+	}
+}
+
+// Called to bind functionality to input
+void ATurretPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
 
 TArray<FString> ATurretPawn::GetBaseMeshMaterialSlots() const
 {
-	return TArray<FString> { TEXT("_Base_Material"), TEXT("Team_Material"), TEXT("Track_Material") }; 
+	TArray<FString> Params;
+	TArray<UMeshComponent*> MeshComponents;
+	GetComponents(MeshComponents, true);
+	
+	for (const UMeshComponent* MeshComponent : MeshComponents)
+	{
+		for (const FName& Name : MeshComponent->GetMaterialSlotNames())
+		{
+			Params.AddUnique(Name.ToString());	
+		}
+	}
+	return Params;
 }
 
 void ATurretPawn::Fire()
 {
 	if(ProjectileClass)
 	{
-		FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
-		FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+		const FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
+		const FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
 	
 		AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
 
@@ -63,7 +114,7 @@ void ATurretPawn::Fire()
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SpawnLocation, SpawnRotation);
 			}
-
+			
 			if(TurretShootSoundBase)
 			{
 				UGameplayStatics::SpawnSoundAtLocation(this, TurretShootSoundBase, GetActorLocation());
@@ -80,9 +131,12 @@ void ATurretPawn::RegisterSpawnedPawn(ATurretPawn* SpawnedPawn)
 	}
 }
 
-void ATurretPawn::RotateTurretTowards(const FVector& TargetLocation)
+void ATurretPawn::RotateTurretTowards(const FVector& TargetLocation) const
 {
-	check(TurretMesh)
+	if(!TurretMesh)
+	{
+		return;
+	}
 	const FVector TurretLocation = TurretMesh->GetComponentLocation();;
 
 	FVector DirectionToCursor = TargetLocation - TurretLocation;
@@ -91,11 +145,11 @@ void ATurretPawn::RotateTurretTowards(const FVector& TargetLocation)
 	const FRotator CurrentRotation = TurretMesh->GetComponentRotation();
 	const FRotator TargetRotation = DirectionToCursor.Rotation();
 			
-	const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation , GetWorld()->GetDeltaSeconds(), TurretRotatingInterpSpeed);
+	const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation , GetWorld()->GetDeltaSeconds(), TurretRotatingInterpolationSpeed);
 	TurretMesh->SetWorldRotation(NewRotation);
 }
 
-void ATurretPawn::HandleHealthChanges(float NewHealth, float DamageAmount)
+void ATurretPawn::HandleHealthChanges(const float NewHealth, float Delta)
 {
 	if(NewHealth <= 0.f)
 	{
@@ -106,17 +160,11 @@ void ATurretPawn::HandleHealthChanges(float NewHealth, float DamageAmount)
 		{
 			UGameplayStatics::SpawnSoundAtLocation(this, TurretExplosionSoundBase, GetActorLocation());
 		}
-
-		if(IsValid(PlayerController))
+		TowerOffenseGameMode->OnPawnDeath(this);
+		if(PlayerController)
 		{
 			PlayerController->ClientStartCameraShake(CameraShakeClass);
 		}
-		
-		ATowerOffenseGameMode* GameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
-		if(GameMode)
-		{
-			GameMode->OnPawnDeath(this);
-		}	
 	}
 	else
 	{
@@ -131,42 +179,3 @@ UHealthComponent* ATurretPawn::GetHealthComponent_Implementation()
 {
 	return HealthComponent;
 }
-
-void ATurretPawn::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-void ATurretPawn::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-	if(BaseMesh && TurretMesh &&!MaterialParameterName.IsNone())
-	{
-		
-		const int32 BaseMaterialIndex = BaseMesh->GetMaterialIndex(MaterialSlotName);
-		const int32 TurretMaterialIndex = TurretMesh->GetMaterialIndex(MaterialSlotName);
-
-		if(BaseMaterialIndex != INDEX_NONE && TurretMaterialIndex != INDEX_NONE)
-		{
-			if(UMaterialInstanceDynamic* TurretColorMaterial = BaseMesh->CreateDynamicMaterialInstance(TurretMaterialIndex))
-			{
-				TurretColorMaterial->SetVectorParameterValue(TeamColorParamName, TeamColor);
-				TurretMesh->SetMaterial(BaseMaterialIndex, TurretColorMaterial);
-			}
-			if(UMaterialInstanceDynamic* HullColor = BaseMesh->CreateDynamicMaterialInstance(BaseMaterialIndex))
-			{
-				HullColor->SetVectorParameterValue(TeamColorParamName, TeamColor);
-				BaseMesh->SetMaterial(BaseMaterialIndex, HullColor);
-			}
-		}
-	}
-}
-
-
-
-// Called to bind functionality to input
-void ATurretPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-

@@ -17,6 +17,8 @@ void ATowerOffenseGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	TankPlayerController = Cast<ATankPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	
+	
 	ChangeGameState(EGameState::MainMenu);
 }
 
@@ -38,7 +40,7 @@ void ATowerOffenseGameMode::ChangeGameState(EGameState NewState)
 		break;
 
 	case EGameState::GameOver:
-		ATowerOffenseHUD* HUD = Cast<ATowerOffenseHUD>(UGameplayStatics::GetPlayerController(this,0)->GetHUD());
+		ATowerOffenseHUD* HUD = Cast<ATowerOffenseHUD>(TankPlayerController);
 		if(HUD)
 		{
 			HUD->SetWidgetVisibility(false);
@@ -113,6 +115,7 @@ int32 ATowerOffenseGameMode::GetEnemiesCount() const
 
 void ATowerOffenseGameMode::DelayStart()
 {
+	//HUD->InitiateHud();
 	RemoveCurrentWidget();
 	if(IsValid(PrepareWidgetClass))
 	{
@@ -127,7 +130,6 @@ void ATowerOffenseGameMode::DelayStart()
 
 void ATowerOffenseGameMode::StartGame()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Start State"));
 	RemoveCurrentWidget();
 	TankPlayerController->SetPlayerEnabledState(true);
 }
@@ -140,7 +142,6 @@ void ATowerOffenseGameMode::RestartGame()
 
 void ATowerOffenseGameMode::EndGame()
 {
-	UE_LOG(LogTemp, Warning, TEXT("End State"));
 	if(IsValid(EndMenuWidgetClass))
 	{
 		CurrentMenuWidget = CreateWidget(GetGameInstance(), EndMenuWidgetClass);

@@ -26,7 +26,6 @@ void ATowerPawn::BeginPlay()
 	Super::BeginPlay();
 	RegisterSpawnedPawn(this);
 
-
 	UTowerHealthBarWidget* TowerHealthBarWidget = Cast<UTowerHealthBarWidget>(HealthBarComponent->GetWidget());
 	if(TowerHealthBarWidget)
 	{
@@ -46,7 +45,7 @@ void ATowerPawn::RegisterSpawnedPawn(ATurretPawn* SpawnedPawn)
 
 AActor* ATowerPawn::GetHighestPriorityTarget()
 {
-	FVector SphereCenter = SphereComponent->GetComponentLocation();
+	const FVector SphereCenter = SphereComponent->GetComponentLocation();
 	float MinDistance = TNumericLimits<float>::Max();
 	AActor* ClosestTarget = nullptr;
 	
@@ -58,9 +57,9 @@ AActor* ATowerPawn::GetHighestPriorityTarget()
 		}
 		
 		FVector PlayerLocation = Target->GetActorLocation();
-		float DistanceToSphere = FVector::DistSquared(PlayerLocation, SphereCenter);
+		const float DistanceToSphere = FVector::DistSquared(PlayerLocation, SphereCenter);
 		
-		if(DistanceToSphere < MinDistance)
+		if(DistanceToSphere < MinDistance && HasClearLineOfSightTo(Target))
 		{
 			MinDistance = DistanceToSphere;
 			ClosestTarget = Target;
@@ -87,6 +86,25 @@ void ATowerPawn::OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class A
 	OverlappingPawns.Remove(OtherActor);
 }
 
+bool ATowerPawn::HasClearLineOfSightTo(AActor* TargetActor) const
+{
+	if (!TargetActor)
+	{
+		return false;
+	}
+
+	FVector Start = TurretMesh->GetComponentLocation();
+	FVector End = TargetActor->GetActorLocation();
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this); 
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+
+	return bHit && (HitResult.GetActor() == TargetActor);
+}
+
 void ATowerPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -96,11 +114,15 @@ void ATowerPawn::Tick(float DeltaSeconds)
 		RotateTurretTowards(Target->GetActorLocation());
 		
 		TimeSinceLastFire += DeltaSeconds;
-			if(TimeSinceLastFire >= FireInterval)
+			if(TimeSinceLastFire >= ReloadTime)
 			{
 				Fire();
 				TimeSinceLastFire = 0.f;
 			}
+	}
+	else
+	{
+		TimeSinceLastFire = 0.f;
 	}
 
 	APlayerCameraManager* PlayerCameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
@@ -111,5 +133,4 @@ void ATowerPawn::Tick(float DeltaSeconds)
 	FVector PlayerCameraLocation = CameraLocation - HealthBarLocation;
 	FRotator HealthBarRotation = PlayerCameraLocation.Rotation();
 	HealthBarComponent->SetWorldRotation(HealthBarRotation);
-
 }

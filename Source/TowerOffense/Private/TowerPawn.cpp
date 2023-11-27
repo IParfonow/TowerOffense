@@ -33,9 +33,9 @@ void ATowerPawn::BeginPlay()
 	}
 }
 
-void ATowerPawn::Fire()
+void ATowerPawn::Shoot()
 {
-	Super::Fire();
+	Super::Shoot();
 }
 
 void ATowerPawn::RegisterSpawnedPawn(ATurretPawn* SpawnedPawn)
@@ -116,7 +116,7 @@ void ATowerPawn::Tick(float DeltaSeconds)
 		TimeSinceLastFire += DeltaSeconds;
 			if(TimeSinceLastFire >= ReloadTime)
 			{
-				Fire();
+				Shoot();
 				TimeSinceLastFire = 0.f;
 			}
 	}

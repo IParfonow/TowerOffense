@@ -4,8 +4,10 @@
 #include "TurretPawn.h"
 #include "TowerOffenseGameMode.h"
 #include "Components/CapsuleComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 ATurretPawn::ATurretPawn()
 {
@@ -95,14 +97,14 @@ TArray<FString> ATurretPawn::GetBaseMeshMaterialSlots() const
 	return Params;
 }
 
-void ATurretPawn::Fire()
+void ATurretPawn::Shoot()
 {
 	if(ProjectileClass)
 	{
-		const FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
-		const FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
-	
-		AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+		ProjectileSpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
+		ProjectileSpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+		
+		AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnLocation, ProjectileSpawnRotation);
 
 		check(SpawnedProjectile)
 		if(UProjectileMovementComponent* ProjectileMovementComponent = SpawnedProjectile->GetProjectileMoveComponent())
@@ -110,16 +112,52 @@ void ATurretPawn::Fire()
 			SpawnedProjectile->SetOwner(this);
 			ProjectileMovementComponent->InitialSpeed = ImpulseMagnitude;
 
-			if(MuzzleFlash)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SpawnLocation, SpawnRotation);
-			}
-			
-			if(TurretShootSoundBase)
-			{
-				UGameplayStatics::SpawnSoundAtLocation(this, TurretShootSoundBase, GetActorLocation());
-			}
+			LoadAsset(MuzzleFlashEffect.ToSoftObjectPath(), "MuzzleFlashEffect");
+			LoadAsset(TurretShootSound.ToSoftObjectPath(), "TurretShootSound");
 		}
+	}
+}
+
+void ATurretPawn::LoadAsset(const FSoftObjectPath& AssetPath, const FString& Context)
+{
+	if(AssetPath.IsValid())
+	{
+		FStreamableManager& AssetLoader = UAssetManager::GetStreamableManager();
+		AssetLoader.RequestAsyncLoad(AssetPath, FStreamableDelegate::CreateUObject(this, &ATurretPawn::OnAssetLoaded, Context));
+	}
+}
+
+void ATurretPawn::OnAssetLoaded(const FString Context)
+{
+	if(Context.Equals("MuzzleFlashEffect", ESearchCase::IgnoreCase))
+	{
+		UParticleSystem* MuzzleFlashEffectSystem = MuzzleFlashEffect.Get();
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlashEffectSystem, ProjectileSpawnLocation, ProjectileSpawnRotation);
+	}
+	else if(Context.Equals("TurretShootSound", ESearchCase::IgnoreCase))
+	{
+		USoundBase* TurretShootSoundBase = TurretShootSound.Get();
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), TurretShootSoundBase, ProjectileSpawnLocation, ProjectileSpawnRotation);
+	}
+	else if(Context.Equals("TurretExplosionSound", ESearchCase::IgnoreCase))
+	{
+		USoundBase* TurretShootSoundBase = TurretShootSound.Get();
+		UGameplayStatics::SpawnSoundAtLocation(this, TurretShootSoundBase, GetActorLocation());	
+	}
+	else if(Context.Equals("TurretGetHitSound", ESearchCase::IgnoreCase))
+	{
+		USoundBase* TurretGetHitSoundBase = TurretGetHitSound.Get();
+		UGameplayStatics::SpawnSoundAtLocation(this, TurretGetHitSoundBase, GetActorLocation());
+	}
+	else if(Context.Equals("ExplosionEffect", ESearchCase::IgnoreCase))
+	{
+		UParticleSystem* ExplosionEffectSystem = ExplosionEffect.Get();
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffectSystem, GetActorLocation(), FRotator::ZeroRotator);
+	}
+	else if(Context.Equals("TurretExplosionSound", ESearchCase::IgnoreCase))
+	{
+		USoundBase* TurretExplosionSoundBase = TurretExplosionSound.Get();
+		UGameplayStatics::SpawnSoundAtLocation(this, TurretExplosionSoundBase, GetActorLocation());
 	}
 }
 
@@ -153,13 +191,9 @@ void ATurretPawn::HandleHealthChanges(const float NewHealth, float Delta)
 {
 	if(NewHealth <= 0.f)
 	{
-		check(ExplosionEffect);
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), FRotator::ZeroRotator);
+		LoadAsset(ExplosionEffect.ToSoftObjectPath(), "ExplosionEffect");
+		LoadAsset(TurretExplosionSound.ToSoftObjectPath(), "TurretExplosionSound");
 
-		if(TurretExplosionSoundBase)
-		{
-			UGameplayStatics::SpawnSoundAtLocation(this, TurretExplosionSoundBase, GetActorLocation());
-		}
 		TowerOffenseGameMode->OnPawnDeath(this);
 		if(PlayerController)
 		{
@@ -168,10 +202,7 @@ void ATurretPawn::HandleHealthChanges(const float NewHealth, float Delta)
 	}
 	else
 	{
-		if(TurretGetHitSoundBase)
-		{
-			UGameplayStatics::SpawnSoundAtLocation(this, TurretGetHitSoundBase, GetActorLocation());
-		}
+		LoadAsset(TurretGetHitSound.ToSoftObjectPath(), "TurretGetHitSound");
 	}
 }
 

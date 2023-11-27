@@ -19,7 +19,7 @@ class TOWEROFFENSE_API ATowerPawn : public ATurretPawn
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void Fire() override;
+	virtual void Shoot() override;
 	virtual void RegisterSpawnedPawn(ATurretPawn* SpawnedPawn) override;
 
 	AActor* GetHighestPriorityTarget();

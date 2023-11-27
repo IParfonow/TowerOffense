@@ -26,7 +26,7 @@ protected:
 	void MoveForward(const FInputActionValue& Value);
 	void TurnRight(const FInputActionValue& Value);
 	
-	virtual void Fire() override;
+	virtual void Shoot() override;
 
 	void SpawnEmitter();
 	void DestroyEmitter();
@@ -71,7 +71,7 @@ protected:
 
 	//VFX
 	
-	UPROPERTY(EditDefaultsOnly, Category= "Effects")
+	UPROPERTY(EditDefaultsOnly, Category= "VFX")
 	UParticleSystem* TrackDust = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)

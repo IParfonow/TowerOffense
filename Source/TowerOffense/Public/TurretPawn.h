@@ -65,26 +65,29 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
 	float TurretRotatingInterpolationSpeed = 10.f;
 
+	FVector ProjectileSpawnLocation;
+	FRotator ProjectileSpawnRotation;
+
 	
 	//VFX
 	UPROPERTY(EditDefaultsOnly, Category= "VFX")
-	UParticleSystem* MuzzleFlash = nullptr;
+	TSoftObjectPtr<UParticleSystem> MuzzleFlashEffect = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category= "VFX")
-	UParticleSystem* ExplosionEffect = nullptr;
+	TSoftObjectPtr<UParticleSystem> ExplosionEffect = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category= "VFX")
 	TSubclassOf<UCameraShakeBase> CameraShakeClass;
 	
 	//SFX
 	UPROPERTY(EditDefaultsOnly, Category= "SFX")
-	USoundBase* TurretGetHitSoundBase = nullptr;
+	TSoftObjectPtr<USoundBase> TurretGetHitSound = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, Category= "SFX")
-	USoundBase* TurretShootSoundBase = nullptr;
+	TSoftObjectPtr<USoundBase> TurretShootSound = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, Category= "SFX")
-	USoundBase* TurretExplosionSoundBase = nullptr;
+	TSoftObjectPtr<USoundBase> TurretExplosionSound = nullptr;
 
 	
 	//GamePlay
@@ -103,7 +106,7 @@ protected:
 	TArray<FString> GetBaseMeshMaterialSlots() const;
 
 	UFUNCTION()
-	virtual void Fire();
+	virtual void Shoot();
 
 	UFUNCTION()
 	virtual void RegisterSpawnedPawn(ATurretPawn* SpawnedPawn);
@@ -113,6 +116,12 @@ protected:
 
 	UFUNCTION()
 	void HandleHealthChanges(const float NewHealth, float Delta);
+
+	UFUNCTION()
+	void LoadAsset(const FSoftObjectPath& AssetPath, const FString& Context);
+
+	UFUNCTION()
+	void OnAssetLoaded(const FString Context);
 
 	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 };

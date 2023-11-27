@@ -77,7 +77,7 @@ void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	
-	EnhancedInputComponent->BindAction(InputToFire, ETriggerEvent::Triggered, this, &ATankPawn::Fire);
+	EnhancedInputComponent->BindAction(InputToFire, ETriggerEvent::Triggered, this, &ATankPawn::Shoot);
 	EnhancedInputComponent->BindAction(InputToMoveForward, ETriggerEvent::Triggered, this, &ATankPawn::MoveForward);
 	EnhancedInputComponent->BindAction(InputToMoveRight, ETriggerEvent::Triggered, this, &ATankPawn::TurnRight);
 	
@@ -141,7 +141,7 @@ void ATankPawn::TurnRight(const FInputActionValue& Value)
 }
 
 
-void ATankPawn::Fire()
+void ATankPawn::Shoot()
 {
 	if(Ammo == 0)
 	{
@@ -150,7 +150,7 @@ void ATankPawn::Fire()
 
 	if(bIsReloaded)
 	{
-		Super::Fire();
+		Super::Shoot();
 		Ammo--;
 		TimeSinceLastFire = 0.f;
 		if(CameraShakeClass)

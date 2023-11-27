@@ -40,7 +40,6 @@ void ATowerElevator::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 	{
 		const FVector PlatformLocation = TowerElevator->GetComponentLocation();
 		Player->SetActorLocation(FVector(PlatformLocation.X, PlatformLocation.Y, PlatformLocation.Z + 120));
-		//Player->AttachToComponent(BoxComponent, FAttachmentTransformRules::KeepWorldTransform);
 		bIsLifting = true;
 	}
 }
@@ -48,7 +47,6 @@ void ATowerElevator::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 void ATowerElevator::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	//Player->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	Player  = nullptr;
 }
 
@@ -84,15 +82,15 @@ FVector ATowerElevator::GetInterpolation(const FVector& A, const FVector& B, con
 void ATowerElevator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	bIsLifting = true;
 	if(bIsMovingForward)
 	{
 		Alpha += DeltaTime / MoveDuration;
-		bIsLifting = true;
 	}
 	else
 	{
 		Alpha -= DeltaTime / MoveDuration;
-		bIsLifting = true;
 	}
 
 	Alpha = FMath::Clamp(Alpha, 0.0f,1.0f);

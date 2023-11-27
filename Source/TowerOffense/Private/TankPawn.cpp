@@ -56,7 +56,8 @@ void ATankPawn::Tick(float DeltaSeconds)
 		const bool bHit = PlayerController->GetHitResultUnderCursor(ECC_Visibility, false , HitResult);
 		if(bHit)
 		{
-			RotateTurretTowards(HitResult.Location);	
+			RotateTurretTowards(HitResult.Location);
+			DrawDebugSphere(GetWorld(), HitResult.Location, 20.0f, 12, FColor::Red, false, -1, 0, 1);
 		}
 	}
 

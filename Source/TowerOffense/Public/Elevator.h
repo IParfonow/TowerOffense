@@ -51,7 +51,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category= "Movement")
 	FVector MovementDirection = FVector(0,0,1);
 
-	UPROPERTY(EditDefaultsOnly, Category="Movement")
+	UPROPERTY(EditAnywhere, Category="Movement")
 	float StopTime = 0.f;
 
 	//Functions

@@ -8,6 +8,30 @@ void ATowerOffenseHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
+}
+
+void ATowerOffenseHUD::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	VisibilityTime += DeltaSeconds;
+	if(VisibilityTime >= VisibilityTimeLimit)
+	{
+		SetWidgetVisibility(false);
+	}
+}
+
+void ATowerOffenseHUD::SetWidgetVisibility(bool bIsVisible)
+{
+	ESlateVisibility Type = (bIsVisible) ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+	
+	HealthBar->SetVisibility(Type);
+	ShellsCounter->SetVisibility(Type);
+}
+
+void ATowerOffenseHUD::InitiateHud()
+{
 	if(HealthBarWidgetClass)
 	{
 		HealthBar = CreateWidget(GetGameInstance(), HealthBarWidgetClass);
@@ -25,25 +49,6 @@ void ATowerOffenseHUD::BeginPlay()
 		EnemiesCounter = CreateWidget(GetGameInstance(), EnemiesCountClass);
 		EnemiesCounter->AddToViewport();
 	}
-}
-
-void ATowerOffenseHUD::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	VisibilityTime += DeltaSeconds;
-	if(VisibilityTime >= VisibilityTimeLimit)
-	{
-		SetWidgetVisibility(false);
-	}
-}
-
-void ATowerOffenseHUD::SetWidgetVisibility(bool bIsVisible)
-{
-	ESlateVisibility Type = (bIsVisible) ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
-
-	HealthBar->SetVisibility(Type);
-	ShellsCounter->SetVisibility(Type);
 }
 
 void ATowerOffenseHUD::RestoreWidgetsVisibility()

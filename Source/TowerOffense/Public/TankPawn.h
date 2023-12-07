@@ -20,6 +20,8 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	void AddMappingContextToInput() const;
+	
+	void LaunchTankEngine();
 protected:
 	virtual void BeginPlay() override;
 	
@@ -31,6 +33,7 @@ protected:
 	void SpawnEmitter();
 	void DestroyEmitter();
 
+	
 	
 	virtual void RegisterSpawnedPawn(ATurretPawn* SpawnedPawn) override;
 

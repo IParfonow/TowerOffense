@@ -6,6 +6,7 @@
 #include "TankPawn.h"
 #include "TowerPawn.h"
 #include "TowerOffenseHUD.h"
+#include "AsyncLoadableObject.h"
 #include "Kismet/GameplayStatics.h"
 
 ATowerOffenseGameMode::ATowerOffenseGameMode()
@@ -17,8 +18,11 @@ void ATowerOffenseGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	TankPlayerController = Cast<ATankPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	
-	
+	HUD = Cast<ATowerOffenseHUD>(TankPlayerController->GetHUD());
+	AssetLoader = Cast<IAsyncLoadableObject>(TankPlayerController);
+
+	LoadingPlayerControllers = Players.Num();
+
 	ChangeGameState(EGameState::MainMenu);
 }
 
@@ -30,7 +34,23 @@ void ATowerOffenseGameMode::ChangeGameState(EGameState NewState)
 	case EGameState::MainMenu:
 		ShowMainMenu();
 		break;
-		
+
+	case EGameState::Loading:
+		RemoveCurrentWidget();
+		if(IsValid(LoadingWidgetClass))
+		{
+			ActivateWidget(LoadingWidgetClass);
+		}
+		if(AssetLoader)
+		{
+			for (FConstPlayerControllerIterator PCIterator = GetWorld()->GetPlayerControllerIterator(); PCIterator; ++PCIterator)
+			{
+				ATankPlayerController* ControlledPlayer = Cast<ATankPlayerController>(PCIterator->Get());
+				AssetLoader->Execute_LoadAssets(ControlledPlayer);
+			}
+		}
+		break;
+
 	case EGameState::Playing:
 		DelayStart();
 		break;
@@ -40,7 +60,6 @@ void ATowerOffenseGameMode::ChangeGameState(EGameState NewState)
 		break;
 
 	case EGameState::GameOver:
-		ATowerOffenseHUD* HUD = Cast<ATowerOffenseHUD>(TankPlayerController);
 		if(HUD)
 		{
 			HUD->SetWidgetVisibility(false);
@@ -115,16 +134,14 @@ int32 ATowerOffenseGameMode::GetEnemiesCount() const
 
 void ATowerOffenseGameMode::DelayStart()
 {
-	//HUD->InitiateHud();
+	HUD->InitiateHud();
+	ATankPawn* Player = Cast<ATankPawn>(TankPlayerController->GetPawn());
+	Player->LaunchTankEngine();
 	RemoveCurrentWidget();
 	if(IsValid(PrepareWidgetClass))
 	{
-		CurrentMenuWidget = CreateWidget(GetGameInstance(), PrepareWidgetClass);
-		if(IsValid(CurrentMenuWidget))
-		{
-			CurrentMenuWidget->AddToViewport();
-			GetWorldTimerManager().SetTimer(RestartTimerHandle, this, &ATowerOffenseGameMode::ReducePrepareTime, 1.f, true, 0.f);
-		}
+		ActivateWidget(PrepareWidgetClass);
+		GetWorldTimerManager().SetTimer( RestartTimerHandle, this, &ATowerOffenseGameMode::ReducePrepareTime, 1.f, true, 0.f);
 	}
 }
 
@@ -144,11 +161,7 @@ void ATowerOffenseGameMode::EndGame()
 {
 	if(IsValid(EndMenuWidgetClass))
 	{
-		CurrentMenuWidget = CreateWidget(GetGameInstance(), EndMenuWidgetClass);
-		if(IsValid(CurrentMenuWidget))
-		{
-			CurrentMenuWidget->AddToViewport();
-		}
+		ActivateWidget(EndMenuWidgetClass);
 	}
 }
 
@@ -156,11 +169,7 @@ void ATowerOffenseGameMode::ShowMainMenu()
 {
 	if(IsValid(MainMenuWidgetClass))
 	{
-		CurrentMenuWidget = CreateWidget(GetGameInstance(), MainMenuWidgetClass);
-		if (CurrentMenuWidget)
-		{
-			CurrentMenuWidget->AddToViewport();
-		}
+		ActivateWidget(MainMenuWidgetClass);
 	}
 }
 
@@ -169,5 +178,27 @@ void ATowerOffenseGameMode::RemoveCurrentWidget()
 	if (CurrentMenuWidget)
 	{
 		CurrentMenuWidget->RemoveFromParent();
+	}
+}
+
+void ATowerOffenseGameMode::ActivateWidget(TSubclassOf<UUserWidget>& Widget)
+{
+	CurrentMenuWidget = CreateWidget(GetGameInstance(), Widget);
+	if (CurrentMenuWidget)
+	{
+		CurrentMenuWidget->AddToViewport();
+	}
+}
+
+void ATowerOffenseGameMode::DecreaseLoadingControllers()
+{
+	if(LoadingPlayerControllers == 0)
+	{
+		RemoveCurrentWidget();
+		ChangeGameState(EGameState::Playing);
+	}
+	else
+	{
+		LoadingPlayerControllers--;
 	}
 }

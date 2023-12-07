@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "TankPlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "TowerOffenseHUD.h"
 #include "GameFramework/GameModeBase.h"
 #include "TowerOffenseGameMode.generated.h"
 
@@ -15,6 +16,7 @@ UENUM(BlueprintType)
 enum class EGameState : uint8
 {
 	MainMenu,
+	Loading,
 	Playing,
 	Paused,
 	GameOver
@@ -44,12 +46,14 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnStartCountDown OnStartCountDown;
 
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void ChangeGameState(EGameState NewState);
+
+	UFUNCTION(BlueprintCallable)
+	void DecreaseLoadingControllers();
 protected:
 	
 	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintCallable, Category= "Game Logic")
-	void ChangeGameState(EGameState NewState);
 	
 	UFUNCTION(BlueprintCallable, Category= "Game Logic")
 	void DelayStart();
@@ -69,7 +73,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category= "Game Logic")
 	void RemoveCurrentWidget();
 
-
+	UFUNCTION(BlueprintCallable, Category= "Game Logic")
+	void ActivateWidget(TSubclassOf<UUserWidget>& Widget);
+	
 
 	UPROPERTY(BlueprintReadOnly, Category= "Game State")
 	EGameState CurrenGameState = EGameState::MainMenu;
@@ -83,15 +89,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> EndMenuWidgetClass;
 
-	// UPROPERTY()
-	// ATowerOffenseHUD* HUD = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> LoadingWidgetClass;
+
+	UPROPERTY()
+	ATowerOffenseHUD* HUD = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float TimeBeforeStart = 5.0f;
 	
 	UPROPERTY()
 	ATankPlayerController* TankPlayerController = nullptr;
-
+	
 	UPROPERTY()
 	TArray<ATankPawn*> Players;
 
@@ -99,7 +108,10 @@ protected:
 	TArray<ATowerPawn*> Enemies;
 
 private:
+	IAsyncLoadableObject* AssetLoader = nullptr;
 	FTimerHandle RestartTimerHandle;
+
+	int32 LoadingPlayerControllers = 0;
 
 	UPROPERTY()
 	UUserWidget* CurrentMenuWidget = nullptr;

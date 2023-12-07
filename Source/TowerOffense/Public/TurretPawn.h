@@ -24,7 +24,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
+	TArray<FSoftObjectPath> GetAssetsPaths();
 protected:
 	//Components
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret")
@@ -42,9 +43,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category= "Health")
 	UHealthComponent* HealthComponent = nullptr;
 
-
+	TArray<FSoftObjectPath> AssetsPaths;
+	
 	//Turret Properties
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret", meta=(GetOptions = "GetBaseMeshMaterialSlots")) //BP Parameter Choice of Materials
+	 UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret", meta=(GetOptions = "GetBaseMeshMaterialSlots")) //BP Parameter Choice of Materials
 	FName MaterialSlotName = NAME_None;
 	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category= "Turret") //Name of parameter in needed element
@@ -73,8 +75,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category= "VFX")
 	TSoftObjectPtr<UParticleSystem> MuzzleFlashEffect = nullptr;
 
+	UPROPERTY()
+	UParticleSystem* MuzzleFlashEffectSystem = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, Category= "VFX")
 	TSoftObjectPtr<UParticleSystem> ExplosionEffect = nullptr;
+
+	UPROPERTY()
+	UParticleSystem* ExplosionEffectSystem = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category= "VFX")
 	TSubclassOf<UCameraShakeBase> CameraShakeClass;
@@ -82,13 +90,21 @@ protected:
 	//SFX
 	UPROPERTY(EditDefaultsOnly, Category= "SFX")
 	TSoftObjectPtr<USoundBase> TurretGetHitSound = nullptr;
+
+	UPROPERTY()
+	USoundBase* TurretGetHitSoundBase = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, Category= "SFX")
 	TSoftObjectPtr<USoundBase> TurretShootSound = nullptr;
+
+	UPROPERTY()
+	USoundBase* TurretShootSoundBase = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, Category= "SFX")
 	TSoftObjectPtr<USoundBase> TurretExplosionSound = nullptr;
 
+	UPROPERTY()
+	USoundBase* TurretExplosionSoundBase = nullptr;
 	
 	//GamePlay
 	float TimeSinceLastFire = 0.0f;
@@ -116,12 +132,6 @@ protected:
 
 	UFUNCTION()
 	void HandleHealthChanges(const float NewHealth, float Delta);
-
-	UFUNCTION()
-	void LoadAsset(const FSoftObjectPath& AssetPath, const FString& Context);
-
-	UFUNCTION()
-	void OnAssetLoaded(const FString Context);
-
+	
 	virtual UHealthComponent* GetHealthComponent_Implementation() override;
 };

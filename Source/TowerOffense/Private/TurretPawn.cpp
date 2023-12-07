@@ -5,8 +5,7 @@
 #include "TowerOffenseGameMode.h"
 #include "Components/CapsuleComponent.h"
 #include "Particles/ParticleSystem.h"
-#include "Engine/AssetManager.h"
-#include "Engine/StreamableManager.h"
+#include "TankPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
 ATurretPawn::ATurretPawn()
@@ -44,6 +43,7 @@ void ATurretPawn::BeginPlay()
 	}
 	
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ATurretPawn::HandleHealthChanges);
+	
 }
 
 void ATurretPawn::Tick(float DeltaTime)
@@ -73,6 +73,11 @@ void ATurretPawn::PostInitializeComponents()
 			}
 		}
 	}
+	AssetsPaths.Add(MuzzleFlashEffect.ToSoftObjectPath());
+	AssetsPaths.Add(ExplosionEffect.ToSoftObjectPath());
+	AssetsPaths.Add(TurretGetHitSound.ToSoftObjectPath());
+	AssetsPaths.Add(TurretShootSound.ToSoftObjectPath());
+	AssetsPaths.Add(TurretExplosionSound.ToSoftObjectPath());
 }
 
 // Called to bind functionality to input
@@ -80,6 +85,7 @@ void ATurretPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
+
 
 TArray<FString> ATurretPawn::GetBaseMeshMaterialSlots() const
 {
@@ -112,52 +118,13 @@ void ATurretPawn::Shoot()
 			SpawnedProjectile->SetOwner(this);
 			ProjectileMovementComponent->InitialSpeed = ImpulseMagnitude;
 
-			LoadAsset(MuzzleFlashEffect.ToSoftObjectPath(), "MuzzleFlashEffect");
-			LoadAsset(TurretShootSound.ToSoftObjectPath(), "TurretShootSound");
+			
+			MuzzleFlashEffectSystem = MuzzleFlashEffect.Get();
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlashEffectSystem, ProjectileSpawnLocation, ProjectileSpawnRotation);
+
+			TurretShootSoundBase = TurretShootSound.Get();
+			UGameplayStatics::SpawnSoundAtLocation(GetWorld(), TurretShootSoundBase, ProjectileSpawnLocation, ProjectileSpawnRotation);
 		}
-	}
-}
-
-void ATurretPawn::LoadAsset(const FSoftObjectPath& AssetPath, const FString& Context)
-{
-	if(AssetPath.IsValid())
-	{
-		FStreamableManager& AssetLoader = UAssetManager::GetStreamableManager();
-		AssetLoader.RequestAsyncLoad(AssetPath, FStreamableDelegate::CreateUObject(this, &ATurretPawn::OnAssetLoaded, Context));
-	}
-}
-
-void ATurretPawn::OnAssetLoaded(const FString Context)
-{
-	if(Context.Equals("MuzzleFlashEffect", ESearchCase::IgnoreCase))
-	{
-		UParticleSystem* MuzzleFlashEffectSystem = MuzzleFlashEffect.Get();
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlashEffectSystem, ProjectileSpawnLocation, ProjectileSpawnRotation);
-	}
-	else if(Context.Equals("TurretShootSound", ESearchCase::IgnoreCase))
-	{
-		USoundBase* TurretShootSoundBase = TurretShootSound.Get();
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), TurretShootSoundBase, ProjectileSpawnLocation, ProjectileSpawnRotation);
-	}
-	else if(Context.Equals("TurretExplosionSound", ESearchCase::IgnoreCase))
-	{
-		USoundBase* TurretShootSoundBase = TurretShootSound.Get();
-		UGameplayStatics::SpawnSoundAtLocation(this, TurretShootSoundBase, GetActorLocation());	
-	}
-	else if(Context.Equals("TurretGetHitSound", ESearchCase::IgnoreCase))
-	{
-		USoundBase* TurretGetHitSoundBase = TurretGetHitSound.Get();
-		UGameplayStatics::SpawnSoundAtLocation(this, TurretGetHitSoundBase, GetActorLocation());
-	}
-	else if(Context.Equals("ExplosionEffect", ESearchCase::IgnoreCase))
-	{
-		UParticleSystem* ExplosionEffectSystem = ExplosionEffect.Get();
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffectSystem, GetActorLocation(), FRotator::ZeroRotator);
-	}
-	else if(Context.Equals("TurretExplosionSound", ESearchCase::IgnoreCase))
-	{
-		USoundBase* TurretExplosionSoundBase = TurretExplosionSound.Get();
-		UGameplayStatics::SpawnSoundAtLocation(this, TurretExplosionSoundBase, GetActorLocation());
 	}
 }
 
@@ -191,8 +158,12 @@ void ATurretPawn::HandleHealthChanges(const float NewHealth, float Delta)
 {
 	if(NewHealth <= 0.f)
 	{
-		LoadAsset(ExplosionEffect.ToSoftObjectPath(), "ExplosionEffect");
-		LoadAsset(TurretExplosionSound.ToSoftObjectPath(), "TurretExplosionSound");
+		ExplosionEffectSystem = ExplosionEffect.Get();
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffectSystem, GetActorLocation(), FRotator::ZeroRotator);
+
+		TurretExplosionSoundBase = TurretExplosionSound.Get();
+		UGameplayStatics::SpawnSoundAtLocation(this, TurretExplosionSoundBase, GetActorLocation());
+		
 
 		TowerOffenseGameMode->OnPawnDeath(this);
 		if(PlayerController)
@@ -202,8 +173,14 @@ void ATurretPawn::HandleHealthChanges(const float NewHealth, float Delta)
 	}
 	else
 	{
-		LoadAsset(TurretGetHitSound.ToSoftObjectPath(), "TurretGetHitSound");
+		TurretGetHitSoundBase = TurretGetHitSound.Get();
+		UGameplayStatics::SpawnSoundAtLocation(this, TurretGetHitSoundBase, GetActorLocation());
 	}
+}
+
+TArray<FSoftObjectPath> ATurretPawn::GetAssetsPaths()
+{
+	return AssetsPaths;
 }
 
 UHealthComponent* ATurretPawn::GetHealthComponent_Implementation()

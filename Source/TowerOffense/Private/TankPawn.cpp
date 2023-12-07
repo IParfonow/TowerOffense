@@ -6,10 +6,8 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "PlayerHealthBarWidget.h"
 #include "Components/AudioComponent.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "Engine/StreamableManager.h"
 #include "TowerOffenseHUD.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -36,14 +34,13 @@ ATankPawn::ATankPawn()
 
 	EngineSound = CreateDefaultSubobject<UAudioComponent>(TEXT("Engine Sound"));
 	EngineSound->SetupAttachment(RootComponent);
+	EngineSound->SetAutoActivate(false);
 }
 
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
-
 	RegisterSpawnedPawn(this);
-	
 }
 	
 void ATankPawn::Tick(float DeltaSeconds)
@@ -128,6 +125,13 @@ void ATankPawn::DestroyEmitter()
 	}
 }
 
+void ATankPawn::LaunchTankEngine()
+{
+	if (EngineSound && EngineSound->IsRegistered())
+	{
+		EngineSound->Play();
+	}
+}
 
 void ATankPawn::TurnRight(const FInputActionValue& Value)
 {
@@ -137,7 +141,7 @@ void ATankPawn::TurnRight(const FInputActionValue& Value)
 
 	const FRotator RotationSpeed = TurnVector * InputValue * DeltaSeconds;
 	
-	AddActorLocalRotation(RotationSpeed, true, 0, ETeleportType::TeleportPhysics);
+	AddActorLocalRotation(RotationSpeed, true, nullptr, ETeleportType::TeleportPhysics);
 }
 
 

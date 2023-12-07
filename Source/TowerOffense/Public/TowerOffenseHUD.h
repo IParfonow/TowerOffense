@@ -46,8 +46,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetVisibility(bool bIsVisible);
 
-	// UFUNCTION(BlueprintCallable)
-	// void InitiateHud();
+	UFUNCTION(BlueprintCallable)
+	void InitiateHud();
 
 	void RestoreWidgetsVisibility();	
 };

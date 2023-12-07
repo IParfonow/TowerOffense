@@ -5,15 +5,19 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "AsyncLoadableObject.h"
 #include "TankPlayerController.generated.h"
 
+class ATurretPawn;
 
 UCLASS()
-class TOWEROFFENSE_API ATankPlayerController : public APlayerController
+class TOWEROFFENSE_API ATankPlayerController : public APlayerController, public IAsyncLoadableObject
 {
 	GENERATED_BODY()
 
-protected:	
+protected:
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(EditDefaultsOnly, Category= "Widgets")
 	TSubclassOf<UUserWidget> LoseClassWidget;
 
@@ -38,8 +42,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category= "Game Logic")
 	void HideEndGameWidget();
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category= "Async Load")
+	void LoadAssets();virtual void LoadAssets_Implementation() override;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category= "Async Load")
+	void OnAssetsLoaded();virtual void OnAssetsLoaded_Implementation() override;
+	
+	FOnAssetsLoaded DecreaseControllersCounter;
 private:
 	FTimerHandle TimerHandle;
+	
+	ATurretPawn* ControlledPawn = nullptr;
+	
 	UPROPERTY()
 	UUserWidget* EndGameWidget = nullptr;
 };

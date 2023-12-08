@@ -17,8 +17,10 @@ ATowerOffenseGameMode::ATowerOffenseGameMode()
 void ATowerOffenseGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	TankPlayerController = Cast<ATankPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	HUD = Cast<ATowerOffenseHUD>(TankPlayerController->GetHUD());
+
 	AssetLoader = Cast<IAsyncLoadableObject>(TankPlayerController);
 
 	LoadingPlayerControllers = Players.Num();
@@ -45,8 +47,9 @@ void ATowerOffenseGameMode::ChangeGameState(EGameState NewState)
 		{
 			for (FConstPlayerControllerIterator PCIterator = GetWorld()->GetPlayerControllerIterator(); PCIterator; ++PCIterator)
 			{
-				ATankPlayerController* ControlledPlayer = Cast<ATankPlayerController>(PCIterator->Get());
-				AssetLoader->Execute_LoadAssets(ControlledPlayer);
+				IAsyncLoadableObject* LoadableObject = Cast<IAsyncLoadableObject>(PCIterator->Get());
+				LoadableObject->GetOnAssetsLoadedEvent().AddUObject(this, &ATowerOffenseGameMode::DecreaseLoadingControllers);
+				LoadableObject->LoadAssets();
 			}
 		}
 		break;

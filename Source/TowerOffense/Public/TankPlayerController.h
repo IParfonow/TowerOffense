@@ -42,11 +42,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category= "Game Logic")
 	void HideEndGameWidget();
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category= "Async Load")
-	void LoadAssets();virtual void LoadAssets_Implementation() override;
+	virtual void LoadAssets() override;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category= "Async Load")
-	void OnAssetsLoaded();virtual void OnAssetsLoaded_Implementation() override;
+	virtual void OnAssetsLoaded() override;
+
+	virtual FOnAssetsLoaded& GetOnAssetsLoadedEvent() override;
 	
 	FOnAssetsLoaded DecreaseControllersCounter;
 private:

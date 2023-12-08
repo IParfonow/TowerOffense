@@ -17,12 +17,9 @@ class TOWEROFFENSE_API IAsyncLoadableObject
 public:
 	DECLARE_EVENT(IAsyncLoadableObject, FOnAssetsLoaded)
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category= "Async Loading")
-	void LoadAssets();
+	virtual void LoadAssets(){};
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category= "Async Loading")
-	void OnAssetsLoaded();
-	//load assets
-	//macros
-	//
+	virtual void OnAssetsLoaded(){};
+
+	virtual FOnAssetsLoaded& GetOnAssetsLoadedEvent() = 0;
 };

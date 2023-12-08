@@ -9,17 +9,12 @@
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	ControlledPawn = Cast<ATurretPawn>(this->GetPawn());
 	if(!ControlledPawn)
 	 {
 	 	UE_LOG(LogTemp, Warning, TEXT("Pawn didn't cast"));
 	 }
-
-	ATowerOffenseGameMode* GameMode = Cast<ATowerOffenseGameMode>(GetWorld()->GetAuthGameMode());
-	DecreaseControllersCounter.AddLambda([GameMode]()
-	{
-		GameMode->DecreaseLoadingControllers();
-	});
 }
 
 float ATankPlayerController::GetEndWidgetTimeDuration() const
@@ -76,12 +71,8 @@ void ATankPlayerController::HideEndGameWidget()
 	}
 }
 
-void ATankPlayerController::LoadAssets_Implementation()
-{
-	IAsyncLoadableObject::LoadAssets_Implementation();
-	//Execute_LoadAssets(this);
-	
-	
+void ATankPlayerController::LoadAssets()
+{	
 	const TArray<FSoftObjectPath> AssetsPaths = ControlledPawn->GetAssetsPaths(); 
 	
 	FStreamableManager& AssetLoader = UAssetManager::GetStreamableManager();
@@ -89,9 +80,13 @@ void ATankPlayerController::LoadAssets_Implementation()
 		this, &ATankPlayerController::OnAssetsLoaded));
 }
 
-void ATankPlayerController::OnAssetsLoaded_Implementation()
+void ATankPlayerController::OnAssetsLoaded()
 {
-	IAsyncLoadableObject::OnAssetsLoaded_Implementation();
 	DecreaseControllersCounter.Broadcast();
+}
+
+IAsyncLoadableObject::FOnAssetsLoaded& ATankPlayerController::GetOnAssetsLoadedEvent()
+{
+	return  DecreaseControllersCounter;
 }
 
